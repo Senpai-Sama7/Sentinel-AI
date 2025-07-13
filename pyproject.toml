@@ -1,0 +1,32 @@
+
+```toml
+[tool.poetry]
+name = "sentinel-memory-service"
+version = "1.0.0"
+description = "A production-grade, multi-layered memory system for AI agents."
+authors = ["Douglas Mitchell DouglasMitchell@HoustonOilAirs.org"]
+readme = "README.md"
+packages = [{include = "core"}, {include = "api"}, {include = "tools"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.110.0"
+uvicorn = {extras = ["standard"], version = "^0.29.0"}
+redis = {extras = ["hiredis"], version = "^5.0.4"}
+weaviate-client = "^4.5.4"
+chromadb = "^0.4.24"
+gitpython = "^3.1.43"
+pydantic = "^2.7.1"
+python-dotenv = "^1.0.1"
+cachetools = "^5.3.3"
+gunicorn = "^22.0.0" # For production deployment
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.0"
+pytest-asyncio = "^0.23.6"
+httpx = "^0.27.0" # For async testing of the API
+mypy = "^1.10.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

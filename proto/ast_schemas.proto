@@ -1,0 +1,133 @@
+// proto/ast_schemas.proto
+syntax = "proto3";
+
+package ast_schemas;
+
+// Import the 'Any' type for extensible annotations.
+import "google/protobuf/any.proto";
+
+// --- Base AST Node Structure ---
+// This message defines the core data for any node in an Abstract Syntax Tree.
+// It is designed to be stored as a primary object in our graph database.
+message ASTNode {
+  // A unique identifier for the node, typically a UUID generated upon creation.
+  // This serves as the primary key in Weaviate.
+  string id = 1;
+
+  // The type of the node as defined by the Tree-sitter grammar (e.g., "function_declaration", "if_statement").
+  string node_type = 2;
+
+  // Byte offsets for precise location within the source file.
+  int32 start_byte = 3;
+  int32 end_byte = 4;
+
+  // Line numbers for human-readable location.
+  int32 start_line = 5;
+  int32 end_line = 6;
+
+  // The exact source code text represented by this node.
+  string source_code_snippet = 7;
+
+  // The repository-relative path to the source file this node belongs to.
+  string file_path = 8;
+
+  // The Git commit hash of the file version, enabling versioned queries of the AST.
+  string git_commit_hash = 9;
+
+  // A common field for identifiable nodes (functions, variables, classes, etc.).
+  string name = 10;
+
+  // A field for attaching arbitrary, strongly-typed annotations. This allows us
+  // to add new kinds of analysis (e.g., performance metrics, documentation links)
+  // without changing the ASTNode schema itself.
+  google.protobuf.Any annotations = 11;
+}
+
+// --- Specific Node Annotations ---
+// This message is an example of a specific annotation type that can be packed
+// into the 'annotations' field of an ASTNode.
+
+message FunctionAnnotations {
+  // New field for test coverage, demonstrating schema evolution.
+  float coverage_percentage = 2;
+
+  // A list of potential security risks identified in this function.
+  repeated SecurityRisk security_risks = 3;
+
+  // A list of detected design patterns or code smells.
+  repeated string detected_patterns = 4;
+
+  // General key-value metadata for extensibility.
+  map<string, string> metadata = 5;
+}
+
+message SecurityRisk {
+  enum Severity {
+    SEVERITY_UNSPECIFIED = 0;
+    LOW = 1;
+    MEDIUM = 2;
+    HIGH = 3;
+    CRITICAL = 4;
+  }
+  // The ID of the rule from the WASM validator that triggered this finding.
+  string rule_id = 1;
+  string description = 2;
+  Severity severity = 3;
+  string confidence = 4; // e.g., "Low", "Medium", "High"
+  // The specific location within the parent node's code snippet where the risk is found.
+  Location location = 5;
+  string recommendation = 6; // How to fix the risk.
+}
+
+message Location {
+  int32 start_byte = 1;
+  int32 end_byte = 2;
+  int32 start_line = 3;
+  int32 end_line = 4;
+}
+
+// --- Graph Structure ---
+// This message defines an edge in our code graph.
+message NodeRelationship {
+  string source_node_id = 1; // The UUID of the source node.
+  string target_node_id = 2; // The UUID of the target node.
+  
+  // The type of the relationship, which corresponds to a cross-reference
+  // property in the Weaviate schema (e.g., "hasChild", "callsFunction").
+  string relationship_type = 3;
+}
+
+// --- Validation Structures ---
+// These messages are used by the WASMValidationService.
+
+message ValidateCodeSnippetRequest {
+  string code_snippet = 1;
+  string language = 2; // e.g., "javascript", "rust"
+  // Specific rules to run. If empty, the service may run a default set.
+  repeated string rule_ids = 3;
+  string git_commit_hash = 4; // Context for versioned rules.
+}
+
+message ValidationResult {
+  string rule_id = 1;
+  bool is_valid = 2;
+  repeated Finding findings = 3;
+  string message = 4; // General summary from the validation rule.
+}
+
+message Finding {
+  enum FindingType {
+    FINDING_TYPE_UNSPECIFIED = 0;
+    INFO = 1;
+    WARNING = 2;
+    ERROR = 3;
+  }
+  string message = 1;
+  FindingType type = 2;
+  Location location = 3; // Specific location of the finding.
+  string suggestion = 4; // A suggested fix for the finding.
+}
+
+message ValidateCodeSnippetResponse {
+  repeated ValidationResult results = 1;
+}

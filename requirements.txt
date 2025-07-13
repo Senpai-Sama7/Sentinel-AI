@@ -1,0 +1,11 @@
+# To generate: poetry export -f requirements.txt --output requirements.txt --without-hashes
+fastapi==0.110.0
+uvicorn[standard]==0.29.0
+redis[hiredis]==5.0.4
+weaviate-client==4.5.4
+chromadb==0.4.24
+gitpython==3.1.43
+pydantic==2.7.1
+python-dotenv==1.0.1
+cachetools==5.3.3
+gunicorn==22.0.0

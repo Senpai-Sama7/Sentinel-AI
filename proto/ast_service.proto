@@ -1,0 +1,118 @@
+// proto/ast_service.proto
+syntax = "proto3";
+
+package ast_service;
+
+// Import the data structures defined in the other proto file.
+import "ast_schemas.proto";
+
+// Service for interacting with the AST graph database (implemented by the Go proxy).
+// This service is the single gateway for all structured code data.
+service ASTGraphService {
+  // Ingests a batch of new AST nodes and their relationships into the graph.
+  // This is an idempotent operation.
+  rpc IngestAST(IngestASTRequest) returns (IngestASTResponse);
+
+  // Retrieves AST nodes based on a flexible query.
+  rpc GetASTNodes(GetASTNodesRequest) returns (GetASTNodesResponse);
+
+  // Updates existing AST nodes (e.g., to add new annotations).
+  rpc UpdateASTNodes(UpdateASTNodesRequest) returns (UpdateASTNodesResponse);
+
+  // Deletes AST nodes by their IDs.
+  rpc DeleteASTNodes(DeleteASTNodesRequest) returns (DeleteASTNodesResponse);
+
+  // Performs a graph traversal from a starting node.
+  // Example: Find all functions called by a specific function.
+  rpc TraverseGraph(TraverseGraphRequest) returns (TraverseGraphResponse);
+}
+
+// Service for WASM-based code validation (implemented by the Rust service).
+// This service provides a secure sandbox for running dynamic analysis rules.
+service WASMValidationService {
+  // Validates a code snippet against specified WASM rules.
+  rpc ValidateCodeSnippet(ast_schemas.ValidateCodeSnippetRequest) returns (ast_schemas.ValidateCodeSnippetResponse);
+
+  // Notifies the service to hot-reload its set of WASM rules from a given source.
+  // This allows for dynamic updates to the validation logic without restarting the service.
+  rpc ReloadWasmRules(ReloadWasmRulesRequest) returns (ReloadWasmRulesResponse);
+}
+
+// --- Request/Response Messages for ASTGraphService ---
+
+message IngestASTRequest {
+  repeated ast_schemas.ASTNode ast_nodes = 1;
+  repeated ast_schemas.NodeRelationship relationships = 2;
+}
+
+message IngestASTResponse {
+  bool success = 1;
+  string message = 2;
+  repeated string ingested_node_ids = 3;
+  repeated string failed_node_ids = 4;
+}
+
+message GetASTNodesRequest {
+  repeated string node_ids = 1; // Fetch by specific UUIDs.
+  string node_type_filter = 2; // Filter by node type (e.g., "FunctionDeclaration").
+  string file_path_filter = 3;
+  string git_commit_hash_filter = 4; // For versioned queries.
+  string semantic_query = 5; // Text for semantic search.
+  int32 limit = 6;
+  int32 offset = 7;
+}
+
+message GetASTNodesResponse {
+  repeated ast_schemas.ASTNode ast_nodes = 1;
+}
+
+message UpdateASTNodesRequest {
+  // Nodes to update. The 'id' field must be present and valid.
+  // The service will perform a partial update with the provided fields.
+  repeated ast_schemas.ASTNode ast_nodes = 1;
+}
+
+message UpdateASTNodesResponse {
+  bool success = 1;
+  string message = 2;
+  repeated string updated_node_ids = 3;
+}
+
+message DeleteASTNodesRequest {
+  repeated string node_ids = 1;
+}
+
+message DeleteASTNodesResponse {
+  bool success = 1;
+  string message = 2;
+  repeated string deleted_node_ids = 3;
+}
+
+message TraverseGraphRequest {
+  string start_node_id = 1;
+  // The type of relationship to follow (e.g., "hasChild", "callsFunction").
+  string traversal_type = 2;
+  int32 depth = 3;
+  string target_node_type_filter = 4; // Optional filter for nodes at the end of the traversal.
+}
+
+message TraverseGraphResponse {
+  // A flattened list of all nodes discovered during the traversal.
+  repeated ast_schemas.ASTNode result_nodes = 1;
+}
+
+// --- Request/Response Messages for WASMValidationService ---
+
+message ReloadWasmRulesRequest {
+  // A list of sources for the new rules (e.g., file paths, S3 URLs).
+  repeated string rule_sources = 1;
+  // If true, all existing rules will be purged before loading the new ones.
+  bool remove_existing = 2;
+}
+
+message ReloadWasmRulesResponse {
+  bool success = 1;
+  string message = 2;
+  repeated string loaded_rules = 3;
+  repeated string failed_to_load_rules = 4;
+}

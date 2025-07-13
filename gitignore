@@ -1,0 +1,44 @@
+# .gitignore
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+*.egg-info/
+.installed.cfg
+*.egg
+.mypy_cache/
+.pytest_cache/
+.coverage
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docker
+docker-compose.override.yml
+
+# Local Data
+chroma_data/
+sample_repo/
+redis_data/
+weaviate_data/
+
+# Build artifacts
+dist/
+build/
+*.spec
+
+# Mac
+.DS_Store

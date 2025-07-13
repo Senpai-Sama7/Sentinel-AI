@@ -1,0 +1,58 @@
+# Dockerfile
+
+# --- Stage 1: Builder ---
+# This stage installs all dependencies, including development dependencies,
+# in a separate environment to keep the final image lean.
+FROM python:3.11-slim as builder
+
+# Set working directory
+WORKDIR /app
+
+# Set environment variables for Poetry
+ENV POETRY_NO_INTERACTION=1 \
+    POETRY_VIRTUALENVS_CREATE=false \
+    POETRY_CACHE_DIR='/var/cache/pypoetry'
+
+# Install Poetry, the dependency manager
+RUN pip install poetry
+
+# Copy only the dependency definition files first.
+# This leverages Docker's layer caching. If these files don't change,
+# Docker won't re-run the `poetry install` step.
+COPY pyproject.toml poetry.lock ./
+
+# Install project dependencies, excluding development dependencies like pytest.
+RUN poetry install --no-dev --no-root
+
+# --- Stage 2: Final Production Image ---
+# This stage starts from a clean base image and copies only what's needed to run the app.
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Create a non-root user and group for security best practices.
+# Running as a non-root user minimizes potential security risks.
+RUN addgroup --system app && adduser --system --group app
+
+# Copy the installed Python packages from the builder stage.
+# This is the key to a small final image.
+COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+
+# Copy the application source code into the final image.
+COPY . .
+
+# Change ownership of the application files to the non-root user.
+RUN chown -R app:app /app
+
+# Switch to the non-root user.
+USER app
+
+# Expose the port the application runs on.
+EXPOSE 8000
+
+# The command to run the application in production.
+# Gunicorn is a battle-tested WSGI server that manages Uvicorn workers.
+# This provides better process management, scalability, and robustness than running Uvicorn directly.
+# The number of workers (-w 4) should be tuned based on the server's CPU cores.
+CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "main:app", "--bind", "0.0.0.0:8000"]
