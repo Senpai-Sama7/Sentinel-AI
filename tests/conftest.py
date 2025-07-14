@@ -1,11 +1,12 @@
 # tests/conftest.py
 
 import pytest
+import pytest_asyncio
 import asyncio
 from unittest.mock import MagicMock, AsyncMock
 
 from fastapi.testclient import TestClient
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 
 # Import the main app object and the dependency getters we want to override
 from main import app
@@ -31,9 +32,15 @@ def mock_memory_manager() -> MagicMock:
     mock = MagicMock(spec=MemoryManager)
     # Configure the async methods with AsyncMock
     mock.get_file_content = AsyncMock()
-    mock.semantic_search = AsyncMock()
+    async def _semantic_search(query: str, top_k: int = 5):
+        return await mock.l2c.query(query, top_k)
+
+    mock.semantic_search = AsyncMock(side_effect=_semantic_search)
     mock.set_cache_item = AsyncMock()
     mock.persist_node = AsyncMock()
+    # Mock the L2 Chroma client used in semantic search
+    mock.l2c = MagicMock()
+    mock.l2c.query = AsyncMock()
     return mock
 
 @pytest.fixture
@@ -51,7 +58,7 @@ def test_app_client(mock_memory_manager: MagicMock) -> TestClient:
     # Clean up the override after the test is done
     app.dependency_overrides.clear()
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def async_test_app_client(mock_memory_manager: MagicMock) -> AsyncClient:
     """
     Creates an httpx.AsyncClient for testing async endpoints. This is the
@@ -59,7 +66,9 @@ async def async_test_app_client(mock_memory_manager: MagicMock) -> AsyncClient:
     """
     app.dependency_overrides[get_memory_manager] = lambda: mock_memory_manager
 
-    async with AsyncClient(app=app, base_url="http://test") as client:
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
         yield client
 
     app.dependency_overrides.clear()
+

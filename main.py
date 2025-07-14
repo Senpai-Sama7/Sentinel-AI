@@ -21,7 +21,8 @@ async def lifespan(app: FastAPI):
     setup_logging(LOG_LEVEL)
     logging.info("Application startup sequence initiated.")
     try:
-        await memory_manager.startup()
+        if memory_manager is not None:
+            await memory_manager.startup()
     except MemoryLayerError as e:
         logging.critical(f"A critical memory layer failed to start: {e}. Shutting down.")
         # In a real K8s environment, this failure would cause the pod to crash-loop,
@@ -32,7 +33,8 @@ async def lifespan(app: FastAPI):
     
     # --- Shutdown ---
     logging.info("Application shutdown sequence initiated.")
-    await memory_manager.shutdown()
+    if memory_manager is not None:
+        await memory_manager.shutdown()
 
 app = FastAPI(
     title="Sentinel AI Memory Service",
