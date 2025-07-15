@@ -1,152 +1,180 @@
-      
-# Sentinel AI Memory Service
+&#x20;  &#x20;
 
-A production-grade, high-performance, multi-layered memory system for AI and code analysis agents. Built for enterprise scale, parallelism, and resilience.
+# Sentinel AI 
 
-## Core Architecture
+A production-ready **semantic memory** micro-service that transforms unstructured content into actionable, AI-driven insights. Designed for high-throughput ingestion, precise semantic indexing, and Retrieval-Augmented Generation (RAG), it delivers sub-millisecond search and contextual responses.
 
-This service implements a sophisticated multi-layered memory hierarchy to provide optimal performance for diverse data access patterns:
+---
 
--   **L0 (Hot Cache):** A thread-safe, in-process LRU cache for single-process, sub-millisecond latency.
--   **L1 (Warm Cache):** A distributed Redis cache for shared, low-latency access across all service replicas.
--   **L2 (Working Memory):**
-    -   **Weaviate:** A graph/vector database for storing and querying structured data like Abstract Syntax Trees (ASTs).
-    -   **ChromaDB:** A vector store for semantic search over unstructured data (documentation, etc.) to power Retrieval-Augmented Generation (RAG).
--   **L3 (Persistent Truth):** A Git repository, acting as the version-controlled, authoritative source for all code.
+## 🚀 Core Capabilities
 
-## Advanced Features
+- **Multi-Format Ingestion:**\
+  Import PDF, DOCX, Markdown, plain text, source code, and OCR-processed images. Content is normalized into `ContentBlock` JSON models with metadata and deduplicated for efficiency.
+- **Embeddings & Vector Search:**\
+  Utilize Hugging Face or OpenAI embeddings and index in Chroma, Weaviate, or Milvus. Supports batch and incremental upserts with auto-sharding for scale.
+- **Multi-Tier Caching:**
+  - *L0 (In-Process LRU)* – Instant cache within each process.
+  - *L1 (Redis)* – Distributed layer for embedding & search results.
+  - *L2 (Vector Store)* – Persistent in-memory vectors.
+  - *L3 (Archive)* – Raw source backups on S3 or filesystem.\
+    Includes stampede protection to prevent cache storms.
+- **Retrieval-Augmented Generation (RAG):**\
+  Combine top-K relevant chunks with LLM prompts (OpenAI GPT-4, local Llama, others). Returns safe fallbacks when context is missing and optional streaming for chat UIs.
+- **Secure FastAPI Endpoints:**
+  - `POST /api/v1/memory/ingest`
+  - `POST /api/v1/memory/search`
+  - `POST /api/v1/memory/query`
+  - `GET /api/v1/memory/file/{id}`
+  - Health, metrics, and interactive docs at `/docs` and `/redoc`.
+- **Authentication & RBAC:**\
+  JWT with RSA/HMAC, role-based permissions (`reader`, `ingestor`, `admin`), token refresh, expiry, and audit logs.
+- **Containerized & Cloud-Native:**\
+  Docker Compose for local dev, Helm chart for Kubernetes. GitHub Actions drive CI/CD: Black, Ruff, mypy, pytest, codecov, Trivy, and chart linting.
+- **Observability:**\
+  Prometheus metrics (request rates, cache hits, RAG latency), OpenTelemetry traces (Jaeger/Tempo), and structured JSON logs (structlog) with trace IDs.
+- **Quality & Resilience:**\
+  100% pytest coverage, Locust load tests, chaos experiments. Self-auditing scripts ensure schema consistency and loop detection.
+- **Documentation & Runbooks:**\
+  C4 diagrams and Pydantic schemas, Postman collections, code snippets, and operational playbooks for incident response.
 
--   **Full Cache Fallback:** Requests automatically cascade from L0 down to L3, ensuring data is found wherever it exists.
--   **Cache Back-filling:** Data retrieved from slower layers (L2/L3) is automatically written back to faster layers (L1/L0) to accelerate future access.
--   **Cache Stampede Protection:** A per-key `asyncio.Lock` mechanism prevents the "thundering herd" problem, where multiple concurrent requests for a missing key would otherwise overwhelm backend systems.
--   **Resilient & Asynchronous:** Built entirely on `asyncio` for high throughput. Failures in one memory layer (e.g., Redis outage) are gracefully handled, allowing the system to continue operating with data from other layers.
--   **Structured Logging:** All logs are emitted as JSON for easy parsing, filtering, and analysis in production monitoring systems (like ELK Stack or Datadog).
--   **Dependency Injection:** Utilizes FastAPI's dependency system for robust lifecycle management and enhanced testability.
+---
 
-## Project Structure
+## 📖 Table of Contents
 
-    
+1. [Quick Start](#quick-start)
+2. [Configuration](#configuration)
+3. [Usage Examples](#usage-examples)
+4. [Deployment](#deployment)
+   - [Docker Compose](#docker-compose)
+   - [Kubernetes (Helm)](#kubernetes-helm)
+5. [Real Use Cases](#real-use-cases)
+6. [Contributing & Governance](#contributing--governance)
+7. [Changelog & Roadmap](#changelog--roadmap)
+8. [License](#license)
 
-/sentinel_memory_service/
-├── api/ # FastAPI routers, models, and dependencies
-├── core/ # Core business logic, memory layers, and configuration
-├── tests/ # Unit and integration tests
-├── tools/ # Standalone scripts for DB setup and data ingestion
-├── .env # Local environment configuration
-├── main.py # Application entry point
-├── pyproject.toml # Dependency management with Poetry
-└── README.md # This file
+---
 
-      
-## Local Development Setup
+## Quick Start
 
-### 1. Prerequisites
--   Python 3.11+
--   Docker and Docker Compose
--   Poetry (for Python dependency management)
+1. **Clone & Configure**
+   ```bash
+   git clone https://github.com/your-org/semantic-memory.git
+   cd semantic-memory
+   cp .env.example .env
+   # Edit .env to set JWT_SECRET, OPENAI_API_KEY, etc.
+   ```
+2. **Run Locally**
+   ```bash
+   docker compose up --build -d
+   # Visit http://localhost:8000/docs
+   ```
+3. **Stop & Clean**
+   ```bash
+   docker compose down -v
+   ```
 
-### 2. Environment Configuration
-Create a `.env` file in the project root by copying the template below. Create a sample Git repository for testing.
+---
+
+## Configuration
+
+| Env Variable        | Description                           | Default                    |
+| ------------------- | ------------------------------------- | -------------------------- |
+| `JWT_SECRET`        | JWT signing key                       | *REQUIRED*                 |
+| `OPENAI_API_KEY`    | OpenAI embeddings & LLM API key       | *REQUIRED*                 |
+| `REDIS_URL`         | Redis DSN                             | `redis://localhost:6379/0` |
+| `CHROMA_HOST`       | Chroma vector DB host                 | `localhost`                |
+| `CHROMA_PORT`       | Chroma vector DB port                 | `8000`                     |
+| `APP_CORS_ORIGINS`  | JSON array of allowed origins         | `[]`                       |
+| `LOG_LEVEL`         | Logging level (`DEBUG`, `INFO`, etc.) | `INFO`                     |
+| `CACHE_TTL`         | Redis entry TTL (seconds)             | `3600`                     |
+| `INGEST_BATCH_SIZE` | Docs per ingest batch                 | `8`                        |
+
+*Extensions for Helm values are in **`helm/values.yaml`**.*
+
+---
+
+## Usage Examples
+
+### Ingest a File
+
 ```bash
-# Create a sample repository for L3
-git init sample_repo
-cd sample_repo
-echo "def main():\n    print('hello world')" > main.py
-git add .
-git commit -m "Initial commit"
-cd ..
+curl -X POST http://localhost:8000/api/v1/memory/ingest \
+  -H "Authorization: Bearer $JWT" \
+  -F "file=@./docs/spec.pdf"
+```
 
-    
+**Errors**: 400 (bad file), 401 (unauthorized), 500 (server error)
 
-# Create the .env file
-cp .env.example .env 
-# (Or manually create .env and fill it out)
-      
-# .env
-LOG_LEVEL=INFO
-REDIS_URL=redis://localhost:6379/0
-WEAVIATE_URL=http://localhost:8080
-CHROMA_PATH=./chroma_data
-GIT_REPO_PATH=./sample_repo
-L0_CACHE_SIZE=10000
+### Semantic Search
 
-    
-3. Start Dependencies
+```bash
+curl -X POST http://localhost:8000/api/v1/memory/search \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $JWT" \
+  -d '{"query":"reset password","top_k":3}'
+```
 
-A docker-compose.yml should be provided to run Redis and Weaviate.
+### RAG Query (Streaming)
 
-      
-docker-compose up -d
+```bash
+curl -N -X POST http://localhost:8000/api/v1/memory/query \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $JWT" \
+  -d '{"query":"Explain auth flow","stream":true}'
+```
 
-    
-4. Install Python Dependencies
+---
 
-      
-poetry install
+## Deployment
 
-    
-5. Initialize Database & Ingest Data
+### Docker Compose
 
-These scripts prepare the L2 memory layer.
+- Local dev and test environment.
+- Services: `api`, `redis`, `chroma`.
 
-      
-# 1. Create the schema in Weaviate
-poetry run python -m tools.init_weaviate_schema
+### Kubernetes (Helm)
 
-# 2. Ingest the sample Git repo into Weaviate
-poetry run python -m tools.ingest_git_repo
+```bash
+helm repo add semmem https://your-org.github.io/semantic-memory/helm
+helm repo update
+helm upgrade --install semmem semmem/semantic-memory \
+  --set image.tag=$(git rev-parse --short HEAD) \
+  --set env.OPENAI_API_KEY=$OPENAI
+```
 
-    
+Customize `helm/values.yaml` for resources, ingress, and CronJobs.
 
-6. Run the Service
+---
 
-      
-poetry run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+## Real Use Cases
 
+1. **Developer Productivity**\
+   Index code repos and docs, enable semantic code search, auto-generate snippets, and summarize architecture.
+2. **Enterprise Knowledge Base**\
+   Ingest policies, training, and FAQs; provide employees an AI assistant; automate audit queries.
+3. **Customer Support**\
+   Power chatbots with manuals and KB articles, update nightly for new content, ensure role-based responses.
+4. **Legal Research**\
+   Semantic retrieval of case law and briefs, generate attributed summaries, find related precedents.
 
+---
 
-The API is now available at http://localhost:8000. Interactive documentation can be found at http://localhost:8000/docs.
-Running Tests
+## Contributing & Governance
 
-The project uses pytest for testing. Mocks are used for external services.
+- **Contribute:** See [CONTRIBUTING.md](CONTRIBUTING.md)
+- **Code of Conduct:** See [CODE\_OF\_CONDUCT.md](CODE_OF_CONDUCT.md)
+- **Templates:** `.github/ISSUE_TEMPLATE/`, `.github/PULL_REQUEST_TEMPLATE.md`
+- **Branches:** Protected `main` & `release/*`, require 2 reviews and passing CI.
 
-      
-poetry run pytest
+---
 
+## Changelog & Roadmap
 
+Review [CHANGELOG.md](CHANGELOG.md) for release history. Upcoming: multi-tenant support, hybrid keyword-vector search, enhanced streaming.
 
-To ensure code quality, run mypy for static type checking.
+---
 
-      
-poetry run mypy .
+## License
 
-    
-API Endpoints
+[MIT License](LICENSE)
 
-The service is versioned under /api/v1/.
-
-    GET /api/v1/memory/file/{file_path}: Retrieves file content from the Git repository via the memory hierarchy.
-
-    POST /api/v1/memory/search: Performs a semantic search using the L2 ChromaDB layer.
-
-    POST /api/v1/memory/cache: Sets a value in the cache layers and optionally persists it to L2 Weaviate.
-
-Refer to the OpenAPI documentation at /docs for detailed request/response models.
-Contributing
-
-Contributions are welcome! Please follow these steps:
-
-    Fork the repository.
-
-    Create a new feature branch (git checkout -b feature/amazing-feature).
-
-    Make your changes and add tests.
-
-    Ensure all tests and linters pass.
-
-    Submit a pull request.
-
-License
-
-This project is licensed under the MIT License - see the LICENSE.md file for details.
-    
