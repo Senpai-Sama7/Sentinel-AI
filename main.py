@@ -30,7 +30,6 @@ async def lifespan(app: FastAPI):
         except MemoryLayerError as e:
             logging.critical(f"A critical memory layer failed to start: {e}. Shutting down.")
             raise e
-    try:
 
 
 app = FastAPI(
@@ -72,7 +71,7 @@ async def generic_exception_handler(request: Request, exc: Exception):
     )
 
 # Include the API router with a versioned prefix
-app.include_router(router, prefix="/api/v1")
+app.include_router(router)
 
 @app.get("/health", tags=["Health"])
 async def health_check():
