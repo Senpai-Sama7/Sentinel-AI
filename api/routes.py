@@ -1,6 +1,7 @@
 # api/routes.py
 
 from fastapi import APIRouter, Depends, HTTPException, status, Path
+from fastapi.responses import PlainTextResponse
 from typing import Optional
 import logging
 
@@ -16,6 +17,7 @@ router = APIRouter(prefix="/memory", tags=["Memory Operations"])
 @router.get(
     "/file/{file_path:path}",
     response_model=str,
+    response_class=PlainTextResponse,
     summary="Retrieve File Content",
     description="Fetches the content of a file from the memory system, using the full L0 -> L1 -> L3 (Git) fallback logic. This is the primary endpoint for retrieving source-of-truth data."
 )

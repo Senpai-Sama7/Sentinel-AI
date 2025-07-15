@@ -31,11 +31,6 @@ async def lifespan(app: FastAPI):
             logging.critical(f"A critical memory layer failed to start: {e}. Shutting down.")
             raise e
     try:
-        yield  # The application runs while the context manager is active
-    finally:
-        logging.info("Application shutdown sequence initiated.")
-        if manager is not None:
-            await manager.shutdown()
 
 
 app = FastAPI(

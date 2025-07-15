@@ -3,9 +3,7 @@
 from core.manager import MemoryManager
 from typing import Optional
 
-# Lazily instantiate the MemoryManager to avoid unnecessary connections during
-# import time (e.g., when running tests).
-memory_manager: Optional[MemoryManager] = None
+
 
 async def get_memory_manager() -> MemoryManager:
     """

@@ -36,7 +36,6 @@ This service implements a sophisticated multi-layered memory hierarchy to provid
 ├── main.py # Application entry point
 ├── pyproject.toml # Dependency management with Poetry
 └── README.md # This file
-Generated code
 
       
 ## Local Development Setup
@@ -75,14 +74,12 @@ L0_CACHE_SIZE=10000
 3. Start Dependencies
 
 A docker-compose.yml should be provided to run Redis and Weaviate.
-Generated bash
 
       
 docker-compose up -d
 
     
 4. Install Python Dependencies
-Generated bash
 
       
 poetry install
@@ -91,7 +88,6 @@ poetry install
 5. Initialize Database & Ingest Data
 
 These scripts prepare the L2 memory layer.
-Generated bash
 
       
 # 1. Create the schema in Weaviate
@@ -103,7 +99,6 @@ poetry run python -m tools.ingest_git_repo
     
 
 6. Run the Service
-Generated bash
 
       
 poetry run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
@@ -114,7 +109,6 @@ The API is now available at http://localhost:8000. Interactive documentation can
 Running Tests
 
 The project uses pytest for testing. Mocks are used for external services.
-Generated bash
 
       
 poetry run pytest
@@ -122,7 +116,6 @@ poetry run pytest
 
 
 To ensure code quality, run mypy for static type checking.
-Generated bash
 
       
 poetry run mypy .
