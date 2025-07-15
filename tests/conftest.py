@@ -1,11 +1,16 @@
 # tests/conftest.py
 
+import os
+os.environ["PYTEST"] = "1"
+
 import pytest
 import asyncio
 from unittest.mock import MagicMock, AsyncMock
 
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
+import httpx
+import pytest_asyncio
 
 # Import the main app object and the dependency getters we want to override
 from main import app
@@ -34,6 +39,8 @@ def mock_memory_manager() -> MagicMock:
     mock.semantic_search = AsyncMock()
     mock.set_cache_item = AsyncMock()
     mock.persist_node = AsyncMock()
+    mock.l2c = MagicMock()
+    mock.l2c.query = AsyncMock()
     return mock
 
 @pytest.fixture
@@ -51,7 +58,7 @@ def test_app_client(mock_memory_manager: MagicMock) -> TestClient:
     # Clean up the override after the test is done
     app.dependency_overrides.clear()
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def async_test_app_client(mock_memory_manager: MagicMock) -> AsyncClient:
     """
     Creates an httpx.AsyncClient for testing async endpoints. This is the
@@ -59,7 +66,8 @@ async def async_test_app_client(mock_memory_manager: MagicMock) -> AsyncClient:
     """
     app.dependency_overrides[get_memory_manager] = lambda: mock_memory_manager
 
-    async with AsyncClient(app=app, base_url="http://test") as client:
+    transport = httpx.ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
         yield client
 
     app.dependency_overrides.clear()

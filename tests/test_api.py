@@ -24,7 +24,7 @@ async def test_get_file_success(async_test_app_client: AsyncClient, mock_memory_
     response = await async_test_app_client.get(f"/api/v1/memory/file/{file_path}")
 
     assert response.status_code == 200
-    assert response.text == file_content
+    assert response.json() == file_content
     # Verify that the manager was called with the correct arguments
     mock_memory_manager.get_file_content.assert_called_once_with(file_path, None)
 
@@ -59,11 +59,34 @@ async def test_semantic_search_success(async_test_app_client: AsyncClient, mock_
         "metadatas": [[{"source": "README.md"}]],
         "distances": [[0.123]]
     }
-    mock_memory_manager.l2c.query.return_value = mock_response
+    mock_memory_manager.semantic_search.return_value = mock_response
     
     request_data = {"query": "test query", "top_k": 1}
     response = await async_test_app_client.post("/api/v1/memory/search", json=request_data)
 
     assert response.status_code == 200
     assert response.json()["documents"][0][0] == "This is a test document."
-    mock_memory_manager.l2c.query.assert_called_once_with("test query", 1)
+    mock_memory_manager.semantic_search.assert_called_once_with("test query", 1)
+
+
+async def test_get_file_invalid_path(async_test_app_client: AsyncClient):
+    """Ensures invalid file paths are rejected with a 400 status."""
+    bad_path = "invalid\\path"
+
+    response = await async_test_app_client.get(f"/api/v1/memory/file/{bad_path}")
+
+    assert response.status_code == 400
+    assert "Invalid file path" in response.json()["detail"]
+
+
+async def test_get_file_invalid_commit_hash(async_test_app_client: AsyncClient):
+    """Ensures invalid commit hashes result in a 400 error."""
+    file_path = "src/main.py"
+    bad_hash = "zzzzzzz"
+
+    response = await async_test_app_client.get(
+        f"/api/v1/memory/file/{file_path}?commit_hash={bad_hash}"
+    )
+
+    assert response.status_code == 400
+    assert "commit hash" in response.json()["detail"].lower()
