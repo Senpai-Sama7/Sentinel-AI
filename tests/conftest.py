@@ -40,12 +40,12 @@ def mock_memory_manager() -> MagicMock:
     mock = MagicMock(spec=MemoryManager)
     # Configure the async methods with AsyncMock
     mock.get_file_content = AsyncMock()
-    mock.semantic_search = AsyncMock()
+    async def _semantic_search(query: str, top_k: int = 5):
+        return await mock.l2c.query(query, top_k)
+
+    mock.semantic_search = AsyncMock(side_effect=_semantic_search)
     mock.set_cache_item = AsyncMock()
     mock.persist_node = AsyncMock()
-    mock.startup = AsyncMock()
-    mock.shutdown = AsyncMock()
-    mock.l2c = MagicMock()
     return mock
 
 @pytest.fixture
@@ -85,3 +85,4 @@ async def async_test_app_client(mock_memory_manager: MagicMock) -> AsyncClient:
         yield client
 
     app.dependency_overrides.clear()
+

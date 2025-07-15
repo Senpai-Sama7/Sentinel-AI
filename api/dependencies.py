@@ -2,10 +2,10 @@
 
 from core.manager import MemoryManager
 
-# This creates a single, shared instance of the MemoryManager that will be
-# used throughout the application's lifecycle. The startup and shutdown logic
-# in main.py will manage its connections.
-memory_manager = MemoryManager()
+# Lazily create a single shared MemoryManager instance.  This avoids
+# initializing external services during module import which can cause issues
+# in test environments.
+memory_manager: MemoryManager | None = None
 
 async def get_memory_manager() -> MemoryManager:
     """
@@ -16,4 +16,7 @@ async def get_memory_manager() -> MemoryManager:
     into the endpoint's arguments. This makes testing trivial by allowing us to
     override this dependency with a mock manager.
     """
+    global memory_manager
+    if memory_manager is None:
+        memory_manager = MemoryManager()
     return memory_manager

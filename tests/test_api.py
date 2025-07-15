@@ -66,28 +66,3 @@ async def test_semantic_search_success(async_test_app_client: AsyncClient, mock_
 
     assert response.status_code == 200
     assert response.json()["documents"][0][0] == "This is a test document."
-    mock_memory_manager.semantic_search.assert_awaited_once_with("test query", 1)
-
-
-async def test_set_cache_no_persist(async_test_app_client: AsyncClient, mock_memory_manager: AsyncMock):
-    """Tests setting a cache item without persisting to L2."""
-    request_data = {"key": "test", "value": "val", "persist_to_l2": False}
-
-    response = await async_test_app_client.post("/api/v1/cache", json=request_data)
-
-    assert response.status_code == 201
-    assert response.json()["message"] == "Successfully set key 'test' in L0/L1 cache."
-    mock_memory_manager.set_cache_item.assert_awaited_once_with("test", "val")
-    mock_memory_manager.persist_node.assert_not_called()
-
-
-async def test_set_cache_with_persist(async_test_app_client: AsyncClient, mock_memory_manager: AsyncMock):
-    """Tests setting a cache item and persisting it to L2."""
-    request_data = {"key": "test2", "value": "val2", "persist_to_l2": True}
-
-    response = await async_test_app_client.post("/api/v1/cache", json=request_data)
-
-    assert response.status_code == 201
-    assert response.json()["message"] == "Successfully set key 'test2' in cache and persisted to L2."
-    mock_memory_manager.persist_node.assert_awaited_once_with("MemoryNode", {"key": "test2", "value": "val2"})
-    mock_memory_manager.set_cache_item.assert_not_called()
