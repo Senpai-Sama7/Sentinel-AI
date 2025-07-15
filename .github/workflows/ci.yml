@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    env:
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      REDIS_URL: ${{ secrets.REDIS_URL }}
+      CHROMA_HOST: ${{ secrets.CHROMA_HOST }}
+      CHROMA_PORT: ${{ secrets.CHROMA_PORT }}
+      APP_CORS_ORIGINS: ${{ secrets.APP_CORS_ORIGINS }}
+      LOG_LEVEL: ${{ secrets.LOG_LEVEL }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Poetry
+        run: pip install poetry
+      - name: Install dependencies
+        run: poetry install
+      - name: Lint
+        run: make lint
+      - name: Test
+        run: make test
+      - name: Ingestion Test
+        run: make ingest-test
+      - name: Check required env vars
+        run: |
+          missing=0
+          for var in JWT_SECRET OPENAI_API_KEY REDIS_URL CHROMA_HOST CHROMA_PORT APP_CORS_ORIGINS LOG_LEVEL; do
+            if [ -z "${!var}" ]; then
+              echo "Missing required env var: $var" >&2
+              missing=1
+            fi
+          done
+          exit $missing
