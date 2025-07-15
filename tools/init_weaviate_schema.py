@@ -57,7 +57,7 @@ def main():
         except Exception as e:
             logging.warning(f"Could not connect to Weaviate on attempt {attempt + 1}/{max_retries}: {e}")
         if attempt < max_retries - 1:
-            logging.info(f"Waiting {retry_day} seconds before next attempt...")
+            logging.info(f"Waiting {retry_delay} seconds before next attempt...")
             time.sleep(retry_delay)
     logging.critical("Failed to initialize Weaviate schema after multiple retries.")
     sys.exit(1)
