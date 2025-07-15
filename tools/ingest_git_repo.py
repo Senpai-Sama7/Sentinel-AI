@@ -48,4 +48,19 @@ def ingest_repository():
     logging.info("Finished queuing all files. Ingestion is now running in the background.")
 
 if __name__ == "__main__":
-    ingest_repository()
+    import argparse
+    parser = argparse.ArgumentParser(description="Ingest a git repository into Weaviate.")
+    parser.add_argument("--repo", type=str, default=GIT_REPO_PATH, help="Path to the git repository")
+    parser.add_argument("--weaviate", type=str, default=WEAVIATE_URL, help="Weaviate URL")
+    args = parser.parse_args()
+
+    # Override config if args are provided
+    global GIT_REPO_PATH, WEAVIATE_URL
+    GIT_REPO_PATH = args.repo
+    WEAVIATE_URL = args.weaviate
+
+    try:
+        ingest_repository()
+    except Exception as e:
+        logging.error(f"Ingestion failed: {e}")
+        sys.exit(1)

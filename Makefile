@@ -62,3 +62,7 @@ lint: ## 🎨 Lint and format all services
 	@docker-compose run --rm orchestrator poetry run mypy .
 	# Add linting commands for other services here
 	@echo "--> Linting complete."
+
+ingest-test:  ## Run ingestion test against sample repo for CI
+	@echo "--> Running ingestion test..."
+	@python3 tools/ingest_git_repo.py --repo memory/data-repo --weaviate http://localhost:8080

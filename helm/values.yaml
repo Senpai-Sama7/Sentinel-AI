@@ -1,0 +1,47 @@
+# Default values for Sentinel Memory Service Helm chart
+
+replicaCount: 1
+
+image:
+  repository: your-org/sentinel-memory-service
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+env:
+  JWT_SECRET: ""
+  OPENAI_API_KEY: ""
+  REDIS_URL: "redis://localhost:6379/0"
+  CHROMA_HOST: "localhost"
+  CHROMA_PORT: 8000
+  APP_CORS_ORIGINS: "[]"
+  LOG_LEVEL: "INFO"
+  CACHE_TTL: 3600
+  INGEST_BATCH_SIZE: 8
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: 1
+    memory: 2Gi
+
+service:
+  type: ClusterIP
+  port: 8000
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: sentinel.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: sentinel-tls
+      hosts:
+        - sentinel.example.com
