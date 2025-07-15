@@ -23,9 +23,12 @@ build: ## 🏗️ Build all service Docker images
 	@echo "--> Building all Docker images using docker-compose..."
 	@docker-compose build
 
-test: ## 🧪 Run tests for all services
-	@echo "--> Running tests for Python orchestrator..."
-	@docker-compose run --rm orchestrator poetry run pytest
+test:
+	@if command -v docker-compose > /dev/null; then \
+		docker-compose -f docker-compose.yml run --rm orchestrator pytest tests; \
+	else \
+		pytest tests; \
+	fi
 	# Add commands for testing other services here if they have tests
 	# @echo "--> Running tests for Rust ast_parser..."
 	# @docker-compose run --rm ast_parser cargo test
