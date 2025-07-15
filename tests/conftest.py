@@ -4,6 +4,14 @@ import pytest
 import pytest_asyncio
 import asyncio
 from unittest.mock import MagicMock, AsyncMock
+import weaviate
+import git
+import redis.asyncio as redis
+
+# Patch the Weaviate client to avoid real network calls during import
+weaviate.Client = MagicMock(return_value=MagicMock(is_ready=lambda: True))
+git.Repo = MagicMock(return_value=MagicMock(is_dirty=lambda *a, **k: False, head=MagicMock(commit=MagicMock(hexsha="0"*40))))
+redis.from_url = AsyncMock(return_value=AsyncMock(ping=AsyncMock()))
 
 from fastapi.testclient import TestClient
 from httpx import AsyncClient, ASGITransport
@@ -38,9 +46,6 @@ def mock_memory_manager() -> MagicMock:
     mock.semantic_search = AsyncMock(side_effect=_semantic_search)
     mock.set_cache_item = AsyncMock()
     mock.persist_node = AsyncMock()
-    # Mock the L2 Chroma client used in semantic search
-    mock.l2c = MagicMock()
-    mock.l2c.query = AsyncMock()
     return mock
 
 @pytest.fixture
@@ -51,6 +56,11 @@ def test_app_client(mock_memory_manager: MagicMock) -> TestClient:
     """
     # Override the dependency: when get_memory_manager is called, return our mock instead.
     app.dependency_overrides[get_memory_manager] = lambda: mock_memory_manager
+    # Replace the global memory_manager used by lifespan events
+    from api import dependencies
+    dependencies.memory_manager = mock_memory_manager
+    import main as main_module
+    main_module.memory_manager = mock_memory_manager
     
     with TestClient(app) as client:
         yield client
@@ -65,6 +75,10 @@ async def async_test_app_client(mock_memory_manager: MagicMock) -> AsyncClient:
     preferred client for testing an asyncio-based application.
     """
     app.dependency_overrides[get_memory_manager] = lambda: mock_memory_manager
+    from api import dependencies
+    dependencies.memory_manager = mock_memory_manager
+    import main as main_module
+    main_module.memory_manager = mock_memory_manager
 
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
