@@ -66,3 +66,4 @@ lint: ## 🎨 Lint and format all services
 ingest-test:  ## Run ingestion test against sample repo for CI
 	@echo "--> Running ingestion test..."
 	@python3 tools/ingest_git_repo.py --repo memory/data-repo --weaviate http://localhost:8080
+	@echo "--> Ingestion test complete."

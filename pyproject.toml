@@ -18,6 +18,7 @@ pydantic = "^2.7.1"
 python-dotenv = "^1.0.1"
 cachetools = "^5.3.3"
 gunicorn = "^22.0.0" # For production deployment
+numpy = "<2.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.0"
