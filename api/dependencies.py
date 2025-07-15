@@ -1,11 +1,9 @@
 # api/dependencies.py
 
 from core.manager import MemoryManager
+from typing import Optional
 
-# Lazily create a single shared MemoryManager instance.  This avoids
-# initializing external services during module import which can cause issues
-# in test environments.
-memory_manager: MemoryManager | None = None
+
 
 async def get_memory_manager() -> MemoryManager:
     """

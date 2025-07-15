@@ -1,5 +1,8 @@
 # tests/conftest.py
 
+import os
+os.environ["PYTEST"] = "1"
+
 import pytest
 import pytest_asyncio
 import asyncio
@@ -14,7 +17,6 @@ git.Repo = MagicMock(return_value=MagicMock(is_dirty=lambda *a, **k: False, head
 redis.from_url = AsyncMock(return_value=AsyncMock(ping=AsyncMock()))
 
 from fastapi.testclient import TestClient
-from httpx import AsyncClient, ASGITransport
 
 # Import the main app object and the dependency getters we want to override
 from main import app
@@ -46,6 +48,8 @@ def mock_memory_manager() -> MagicMock:
     mock.semantic_search = AsyncMock(side_effect=_semantic_search)
     mock.set_cache_item = AsyncMock()
     mock.persist_node = AsyncMock()
+    mock.l2c = MagicMock()
+    mock.l2c.query = AsyncMock()
     return mock
 
 @pytest.fixture
@@ -80,7 +84,7 @@ async def async_test_app_client(mock_memory_manager: MagicMock) -> AsyncClient:
     import main as main_module
     main_module.memory_manager = mock_memory_manager
 
-    transport = ASGITransport(app=app)
+
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         yield client
 

@@ -12,7 +12,7 @@ from core.utils import validate_file_path, validate_commit_hash
 
 # Create a new router instance. This helps in organizing endpoints and can be
 # included in the main FastAPI app with a prefix.
-router = APIRouter(tags=["Memory Operations"])
+router = APIRouter(prefix="/memory", tags=["Memory Operations"])
 
 @router.get(
     "/file/{file_path:path}",
@@ -27,6 +27,14 @@ async def get_file_from_memory(
     manager: MemoryManager = Depends(get_memory_manager)
 ):
     logging.info(f"API request for file: {file_path} at commit: {commit_hash or 'latest'}")
+
+    try:
+        file_path = validate_file_path(file_path)
+        if commit_hash is not None:
+            commit_hash = validate_commit_hash(commit_hash)
+    except ValueError as err:
+        raise HTTPException(status_code=400, detail=str(err))
+
     # The actual logic is delegated entirely to the MemoryManager.
     # The API layer is only responsible for handling HTTP concerns.
     # Exceptions raised by the manager will be caught by the handlers in main.py.
