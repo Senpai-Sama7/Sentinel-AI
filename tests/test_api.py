@@ -3,6 +3,7 @@
 import pytest
 from httpx import AsyncClient
 from unittest.mock import AsyncMock
+import os
 
 from core.exceptions import NotFoundError, MemoryLayerError
 
@@ -66,4 +67,22 @@ async def test_semantic_search_success(async_test_app_client: AsyncClient, mock_
 
     assert response.status_code == 200
     assert response.json()["documents"][0][0] == "This is a test document."
+
+def test_required_env_vars_present():
+    required_vars = [
+        "JWT_SECRET",
+        "OPENAI_API_KEY",
+        "REDIS_URL",
+        "CHROMA_HOST",
+        "CHROMA_PORT",
+        "APP_CORS_ORIGINS",
+        "LOG_LEVEL",
+        "WEAVIATE_URL",
+        "GIT_REPO_PATH",
+        "L0_CACHE_SIZE",
+        "GO_PROXY_GRPC_ADDR",
+        "CHROMA_DB_PATH",
+    ]
+    missing = [var for var in required_vars if not os.getenv(var)]
+    assert not missing, f"Missing required env vars: {missing}"
 
