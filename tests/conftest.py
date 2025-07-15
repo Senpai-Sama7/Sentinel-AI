@@ -17,6 +17,7 @@ git.Repo = MagicMock(return_value=MagicMock(is_dirty=lambda *a, **k: False, head
 redis.from_url = AsyncMock(return_value=AsyncMock(ping=AsyncMock()))
 
 from fastapi.testclient import TestClient
+from httpx import AsyncClient, ASGITransport
 
 
 # Import the main app object and the dependency getters we want to override
@@ -44,8 +45,7 @@ def mock_memory_manager() -> MagicMock:
     # Configure the async methods with AsyncMock
     mock.get_file_content = AsyncMock()
     async def _semantic_search(query: str, top_k: int = 5):
-        return await mock.l2c.query(query, top_k)
-
+        return {"ids": [["doc1"]], "documents": [["This is a test document."]], "metadatas": [[{"source": "README.md"}]], "distances": [[0.123]]}
     mock.semantic_search = AsyncMock(side_effect=_semantic_search)
     mock.set_cache_item = AsyncMock()
     mock.persist_node = AsyncMock()
@@ -84,7 +84,7 @@ async def async_test_app_client(mock_memory_manager: MagicMock) -> AsyncClient:
     import main as main_module
     main_module.memory_manager = mock_memory_manager
 
-
+    transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         yield client
 
