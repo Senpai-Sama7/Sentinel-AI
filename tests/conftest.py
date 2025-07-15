@@ -18,6 +18,7 @@ redis.from_url = AsyncMock(return_value=AsyncMock(ping=AsyncMock()))
 
 from fastapi.testclient import TestClient
 
+
 # Import the main app object and the dependency getters we want to override
 from main import app
 from api.dependencies import get_memory_manager
@@ -48,8 +49,7 @@ def mock_memory_manager() -> MagicMock:
     mock.semantic_search = AsyncMock(side_effect=_semantic_search)
     mock.set_cache_item = AsyncMock()
     mock.persist_node = AsyncMock()
-    mock.l2c = MagicMock()
-    mock.l2c.query = AsyncMock()
+
     return mock
 
 @pytest.fixture

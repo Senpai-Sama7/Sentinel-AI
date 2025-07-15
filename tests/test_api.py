@@ -66,3 +66,4 @@ async def test_semantic_search_success(async_test_app_client: AsyncClient, mock_
 
     assert response.status_code == 200
     assert response.json()["documents"][0][0] == "This is a test document."
+
