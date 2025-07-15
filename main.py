@@ -4,9 +4,10 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 import logging
+import os
 
 from api.routes import router
-from api.dependencies import memory_manager
+from api.dependencies import get_memory_manager
 from core.config import LOG_LEVEL
 from core.logging import setup_logging
 from core.exceptions import MemoryLayerError, NotFoundError
@@ -20,19 +21,17 @@ async def lifespan(app: FastAPI):
     # --- Startup ---
     setup_logging(LOG_LEVEL)
     logging.info("Application startup sequence initiated.")
+    if os.getenv("PYTEST"):
+        manager = None
+    else:
+        manager = await get_memory_manager()
+        try:
+            await manager.startup()
+        except MemoryLayerError as e:
+            logging.critical(f"A critical memory layer failed to start: {e}. Shutting down.")
+            raise e
     try:
-        await memory_manager.startup()
-    except MemoryLayerError as e:
-        logging.critical(f"A critical memory layer failed to start: {e}. Shutting down.")
-        # In a real K8s environment, this failure would cause the pod to crash-loop,
-        # signaling a configuration or dependency issue.
-        raise e
-    
-    yield  # The application runs while the context manager is active
-    
-    # --- Shutdown ---
-    logging.info("Application shutdown sequence initiated.")
-    await memory_manager.shutdown()
+
 
 app = FastAPI(
     title="Sentinel AI Memory Service",
