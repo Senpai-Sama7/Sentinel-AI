@@ -1,0 +1,68 @@
+{
+  "info": {
+    "name": "Sentinel AI API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Ingest File",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{JWT}}", "type": "text" }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "file", "type": "file", "src": "" }
+          ]
+        },
+        "url": { "raw": "{{baseUrl}}/api/v1/memory/ingest", "host": ["{{baseUrl}}"], "path": ["api", "v1", "memory", "ingest"] }
+      }
+    },
+    {
+      "name": "Semantic Search",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{JWT}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"query\": \"reset password\", \"top_k\": 3}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/v1/memory/search", "host": ["{{baseUrl}}"], "path": ["api", "v1", "memory", "search"] }
+      }
+    },
+    {
+      "name": "RAG Query",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{JWT}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json", "type": "text" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"query\": \"Explain auth flow\", \"stream\": true}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/v1/memory/query", "host": ["{{baseUrl}}"], "path": ["api", "v1", "memory", "query"] }
+      }
+    },
+    {
+      "name": "Get File",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{JWT}}", "type": "text" }
+        ],
+        "url": { "raw": "{{baseUrl}}/api/v1/memory/file/{{id}}", "host": ["{{baseUrl}}"], "path": ["api", "v1", "memory", "file", "{{id}}"] }
+      }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8000" },
+    { "key": "JWT", "value": "" }
+  ]
+}
