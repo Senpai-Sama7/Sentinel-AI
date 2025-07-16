@@ -1,6 +1,6 @@
 # api/routes.py
 
-from fastapi import APIRouter, Depends, HTTPException, status, Path
+from fastapi import APIRouter, Depends, HTTPException, status, Path, UploadFile, File
 from fastapi.responses import PlainTextResponse
 from typing import Optional
 import logging
@@ -77,3 +77,20 @@ async def set_memory_item(
         message = f"Successfully set key '{request.key}' in L0/L1 cache."
 
     return SetMemoryResponse(key=request.key, status="success", message=message)
+
+@router.post(
+    "/ingest",
+    status_code=status.HTTP_200_OK,
+    summary="Ingest a Document",
+    description="Uploads a document and indexes it into the semantic memory store."
+)
+async def ingest_document(
+    file: UploadFile = File(...),
+    manager: MemoryManager = Depends(get_memory_manager)
+):
+    content = await file.read()
+    if not content:
+        raise HTTPException(status_code=400, detail="Empty file")
+    text = content.decode(errors="replace")
+    await manager.ingest_document(file.filename, text, {"source": file.filename})
+    return {"status": "success", "id": file.filename}

@@ -185,3 +185,11 @@ class MemoryManager:
             await self.l1.set(key, value_to_store, expire=expire_seconds)
         except Exception as e:
             logging.warning(f"L1 Redis SET failed for key '{key}': {e}.")
+
+    async def ingest_document(self, doc_id: str, content: str, metadata: Optional[Dict[str, Any]] = None) -> None:
+        """Indexes a document into the semantic vector store."""
+        logging.info(f"Ingesting document '{doc_id}' into L2-Chroma")
+        try:
+            self.l2c.add_document(doc_id, content, metadata)
+        except Exception as e:
+            raise MemoryLayerError("L2-Chroma", f"Ingestion failed: {e}")

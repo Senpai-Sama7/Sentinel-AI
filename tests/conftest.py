@@ -2,6 +2,18 @@
 
 import os
 os.environ["PYTEST"] = "1"
+os.environ.setdefault("JWT_SECRET", "test")
+os.environ.setdefault("OPENAI_API_KEY", "test")
+os.environ.setdefault("REDIS_URL", "redis://localhost:6379/0")
+os.environ.setdefault("CHROMA_HOST", "localhost")
+os.environ.setdefault("CHROMA_PORT", "8000")
+os.environ.setdefault("APP_CORS_ORIGINS", "[]")
+os.environ.setdefault("LOG_LEVEL", "INFO")
+os.environ.setdefault("WEAVIATE_URL", "http://localhost:8080")
+os.environ.setdefault("GIT_REPO_PATH", "./repo")
+os.environ.setdefault("L0_CACHE_SIZE", "100")
+os.environ.setdefault("GO_PROXY_GRPC_ADDR", "localhost:8081")
+os.environ.setdefault("CHROMA_DB_PATH", "./chroma_data")
 
 import pytest
 import pytest_asyncio
