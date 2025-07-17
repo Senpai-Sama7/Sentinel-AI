@@ -1,0 +1,28 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Ingestion Overview",
+    "panels": [
+      {
+        "type": "graph",
+        "title": "Ingestion Rate",
+        "targets": [
+          {"expr": "sum(rate(ingestion_requests_total[1m]))", "legendFormat": "requests/min"}
+        ],
+        "datasource": "Prometheus",
+        "id": 1
+      },
+      {
+        "type": "graph",
+        "title": "Ingestion Errors",
+        "targets": [
+          {"expr": "sum(rate(ingestion_errors_total[1m]))", "legendFormat": "errors/min"}
+        ],
+        "datasource": "Prometheus",
+        "id": 2
+      }
+    ],
+    "schemaVersion": 30,
+    "version": 1
+  }
+}

@@ -7,17 +7,31 @@ image:
   tag: "latest"
   pullPolicy: IfNotPresent
 
+# Environment variables for the application
+# These values should be overridden in a values-production.yaml file
+# or via --set flags in a production environment.
 env:
+  # -- The JWT secret key for signing and verifying tokens.
   JWT_SECRET: ""
+  # -- The API key for accessing the OpenAI API.
   OPENAI_API_KEY: ""
+  # -- The URL for connecting to the Redis cache.
   REDIS_URL: "redis://localhost:6379/0"
+  # -- The hostname for the Chroma vector database.
   CHROMA_HOST: "localhost"
+  # -- The port for the Chroma vector database.
   CHROMA_PORT: 8000
+  # -- A JSON array of CORS origins to allow.
   APP_CORS_ORIGINS: "[]"
+  # -- The logging level for the application.
   LOG_LEVEL: "INFO"
+  # -- The time-to-live for cached items, in seconds.
   CACHE_TTL: 3600
+  # -- The batch size for ingesting documents.
   INGEST_BATCH_SIZE: 8
 
+# -- Resource requests and limits for the container.
+# It is recommended to adjust these values based on the expected workload.
 resources:
   requests:
     cpu: 250m
@@ -30,12 +44,18 @@ service:
   type: ClusterIP
   port: 8000
 
+# -- Ingress configuration for exposing the service.
 ingress:
   enabled: true
+  # -- The IngressClass to use for the ingress controller.
   className: "nginx"
   annotations:
+    # -- Nginx-specific annotations
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    # -- Traefik-specific annotations
+    # traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    # traefik.ingress.kubernetes.io/router.tls: "true"
   hosts:
     - host: sentinel.example.com
       paths:

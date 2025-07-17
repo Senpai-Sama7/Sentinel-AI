@@ -1,0 +1,35 @@
+name: Lint Environment Variables
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/**'
+      - '.env.example'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/**'
+      - '.env.example'
+
+jobs:
+  lint-env:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Lint env variables
+        run: |
+          missing_vars=0
+          for var in $(grep -o '^[A-Z_]*' .env.example); do
+            if ! grep -r "secrets.$var" .github/workflows/; then
+              echo "Variable $var is defined in .env.example but not used in any workflow."
+              missing_vars=$((missing_vars + 1))
+            fi
+          done
+          if [ $missing_vars -ne 0 ]; then
+            exit 1
+          fi

@@ -1,8 +1,8 @@
 # Sentinel AI
 
-[![CI](https://github.com/your-org/semantic-memory/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/semantic-memory/actions/workflows/ci.yml)
-[![Helm Chart](https://img.shields.io/badge/helm-chart-blue)](https://github.com/your-org/semantic-memory/tree/main/helm)
-[![Docker](https://img.shields.io/docker/pulls/your-org/sentinel-memory-service)](https://hub.docker.com/r/your-org/sentinel-memory-service)
+[![CI](https://github.com/stj-se/semantic-memory/actions/workflows/ci.yml/badge.svg)](https://github.com/stj-se/semantic-memory/actions/workflows/ci.yml)
+[![Helm Chart](https://img.shields.io/badge/helm-chart-blue)](helm/)
+[![Docker](https://img.shields.io/docker/pulls/stjse/semantic-memory)](https://hub.docker.com/r/stjse/semantic-memory)
 
 A production-ready **semantic memory** micro-service that transforms unstructured content into actionable, AI-driven insights. Designed for high-throughput ingestion, precise semantic indexing, and Retrieval-Augmented Generation (RAG), it delivers sub-millisecond search and contextual responses.
 
@@ -60,7 +60,7 @@ A production-ready **semantic memory** micro-service that transforms unstructure
 
 1. **Clone & Configure**
    ```bash
-   git clone https://github.com/your-org/semantic-memory.git
+   git clone https://github.com/stj-se/semantic-memory.git
    cd semantic-memory
    cp .env.example .env
    # Edit .env to set JWT_SECRET, OPENAI_API_KEY, etc.
@@ -137,9 +137,9 @@ curl -N -X POST http://localhost:8000/api/v1/memory/query \
 ### Kubernetes (Helm)
 
 ```bash
-helm repo add semmem https://your-org.github.io/semantic-memory/helm
+helm repo add semantic-memory https://stj-se.github.io/semantic-memory/helm
 helm repo update
-helm upgrade --install semmem semmem/semantic-memory \
+helm upgrade --install semantic-memory semantic-memory/semantic-memory \
   --set image.tag=$(git rev-parse --short HEAD) \
   --set env.OPENAI_API_KEY=$OPENAI
 ```
@@ -178,5 +178,4 @@ Review [CHANGELOG.md](CHANGELOG.md) for release history. Upcoming: multi-tenant 
 
 ## License
 
-[MIT License](LICENSE)
-
+[MIT License](LICENSE.md)

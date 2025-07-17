@@ -1,69 +1,62 @@
-# API Schema (Generated)
+# API Schema
 
-```
-# SetMemoryRequest
-```
+## SetMemoryRequest
+
+```json
 {
+  "description": "Defines the request body for setting or updating a memory item.",
+  "properties": {
+    "key": {
+      "description": "The unique key for the memory item. For files, this should be the file path.",
+      "example": "src/utils/helpers.py",
+      "title": "Key",
+      "type": "string"
+    },
+    "value": {
+      "description": "The value to store. Can be any JSON-serializable type.",
+      "title": "Value"
+    },
+    "persist_to_l2": {
+      "default": false,
+      "description": "If true, the item will be persisted to the L2 Weaviate layer for long-term storage.",
+      "title": "Persist To L2",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "key",
+    "value"
+  ],
   "title": "SetMemoryRequest",
-  "type": "object",
-  "properties": {
-    "key": {"title": "Key", "type": "string", "description": "The unique key for the memory item. For files, this should be the file path.", "example": "src/utils/helpers.py"},
-    "value": {"title": "Value"},
-    "persist_to_l2": {"title": "Persist To L2", "default": false, "type": "boolean", "description": "If true, the item will be persisted to the L2 Weaviate layer for long-term storage."}
-  },
-  "required": ["key", "value"]
+  "type": "object"
 }
+```
 
-```
-# SemanticSearchRequest
-```
+## SemanticSearchRequest
+
+```json
 {
+  "description": "Defines the request body for performing a semantic search.",
+  "properties": {
+    "query": {
+      "description": "The natural language query for semantic search against the L2 ChromaDB layer.",
+      "example": "What is the purpose of the MemoryManager?",
+      "title": "Query",
+      "type": "string"
+    },
+    "top_k": {
+      "default": 5,
+      "description": "The number of top results to return.",
+      "exclusiveMinimum": 0,
+      "maximum": 50,
+      "title": "Top K",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "query"
+  ],
   "title": "SemanticSearchRequest",
-  "type": "object",
-  "properties": {
-    "query": {"title": "Query", "type": "string", "description": "The natural language query for semantic search against the L2 ChromaDB layer.", "example": "What is the purpose of the MemoryManager?"},
-    "top_k": {"title": "Top K", "default": 5, "type": "integer", "minimum": 1, "maximum": 50, "description": "The number of top results to return."}
-  },
-  "required": ["query"]
+  "type": "object"
 }
-
 ```
-# SetMemoryResponse
-```
-{
-  "title": "SetMemoryResponse",
-  "type": "object",
-  "properties": {
-    "key": {"title": "Key", "type": "string"},
-    "status": {"title": "Status", "type": "string"},
-    "message": {"title": "Message", "type": "string"}
-  },
-  "required": ["key", "status", "message"]
-}
-
-```
-# SemanticSearchResponse
-```
-{
-  "title": "SemanticSearchResponse",
-  "type": "object",
-  "properties": {
-    "ids": {"title": "Ids", "type": "array", "items": {"type": "array", "items": {"type": "string"}}},
-    "documents": {"title": "Documents", "type": "array", "items": {"type": "array", "items": {"type": "string"}}},
-    "metadatas": {"title": "Metadatas", "type": "array", "items": {"type": "array", "items": {"type": "object", "additionalProperties": {}}}},
-    "distances": {"title": "Distances", "type": "array", "items": {"type": "array", "items": {"type": "number"}}}
-  },
-  "required": ["ids", "documents", "metadatas", "distances"]
-}
-
-```
-# ErrorResponse
-```
-{
-  "title": "ErrorResponse",
-  "type": "object",
-  "properties": {
-    "message": {"title": "Message", "type": "string"}
-  },
-  "required": ["message"]
-}

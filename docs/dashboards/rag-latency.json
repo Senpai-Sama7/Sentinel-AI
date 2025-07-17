@@ -1,0 +1,19 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "RAG Latency",
+    "panels": [
+      {
+        "type": "graph",
+        "title": "p95 RAG Latency",
+        "targets": [
+          {"expr": "histogram_quantile(0.95, sum(rate(rag_latency_seconds_bucket[5m])) by (le))", "legendFormat": "p95 latency"}
+        ],
+        "datasource": "Prometheus",
+        "id": 1
+      }
+    ],
+    "schemaVersion": 30,
+    "version": 1
+  }
+}

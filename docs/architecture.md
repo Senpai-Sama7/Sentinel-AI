@@ -1,17 +1,19 @@
-# Architecture Diagram (C4 Model)
+# Architecture
+
+This document provides an overview of the system architecture using the C4 model.
+
+## C4 Diagram
 
 ```mermaid
 C4Context
-Person(user, "User", "Interacts with the API")
-System(api, "Sentinel Memory API", "FastAPI service for semantic memory")
-SystemDb(redis, "Redis", "L1 distributed cache")
-SystemDb(chroma, "ChromaDB", "L2 vector store")
-SystemDb(weaviate, "Weaviate", "L2/L3 vector and object store")
-System(llm, "External LLM (OpenAI, etc.)", "Used for embeddings and RAG")
+  title System Context Diagram for Semantic Memory Service
 
-Rel(user, api, "Uses")
-Rel(api, redis, "Caches embeddings/results")
-Rel(api, chroma, "Stores/retrieves vectors")
-Rel(api, weaviate, "Archives and indexes source data")
-Rel(api, llm, "Sends queries and gets embeddings")
+  Person(user, "User", "A user of the semantic memory service.")
+  System(semantic_memory, "Semantic Memory", "The core microservice for ingestion, search, and RAG.")
+  System_Ext(openai, "OpenAI", "Provides language models for embeddings and generation.")
+  System_Ext(vector_db, "Vector Database", "Stores and indexes document embeddings (e.g., Chroma, Weaviate).")
+
+  Rel(user, semantic_memory, "Uses")
+  Rel(semantic_memory, openai, "Uses")
+  Rel(semantic_memory, vector_db, "Uses")
 ```

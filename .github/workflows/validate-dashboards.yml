@@ -1,0 +1,30 @@
+name: Validate Grafana Dashboards
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/dashboards/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'docs/dashboards/**'
+
+jobs:
+  validate-dashboards:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Install yajsv
+        run: |
+          go install github.com/neilpa/yajsv@latest
+
+      - name: Validate dashboard schema
+        run: |
+          for dashboard in $(find docs/dashboards -name '*.json'); do
+            yajsv -s https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/json-reference.json $dashboard
+          done
