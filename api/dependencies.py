@@ -3,6 +3,8 @@
 from core.manager import MemoryManager
 from typing import Optional
 
+memory_manager: Optional[MemoryManager] = None
+
 
 
 async def get_memory_manager() -> MemoryManager:

@@ -1,15 +1,16 @@
 # main.py
 
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
 from contextlib import asynccontextmanager
 import logging
 import os
+from prometheus_client import Counter, generate_latest
 
 from api.routes import router
 from api.dependencies import get_memory_manager
 from core.config import LOG_LEVEL
-from core.logging import setup_logging
+from core.log_utils import setup_logging
 from core.exceptions import MemoryLayerError, NotFoundError
 
 @asynccontextmanager
@@ -21,15 +22,22 @@ async def lifespan(app: FastAPI):
     # --- Startup ---
     setup_logging(LOG_LEVEL)
     logging.info("Application startup sequence initiated.")
-    if os.getenv("PYTEST"):
-        manager = None
-    else:
+    manager = None
+    if not os.getenv("PYTEST"):
         manager = await get_memory_manager()
         try:
             await manager.startup()
         except MemoryLayerError as e:
-            logging.critical(f"A critical memory layer failed to start: {e}. Shutting down.")
+            logging.critical(
+                f"A critical memory layer failed to start: {e}. Shutting down."
+            )
             raise e
+
+    try:
+        yield
+    finally:
+        if manager is not None:
+            await manager.shutdown()
 
 
 app = FastAPI(
@@ -71,10 +79,25 @@ async def generic_exception_handler(request: Request, exc: Exception):
     )
 
 # Include the API router with a versioned prefix
-app.include_router(router)
+app.include_router(router, prefix="/api/v1")
 
 @app.get("/health", tags=["Health"])
 async def health_check():
     """Provides a simple health check endpoint."""
     # In a real system, this would check connections to Redis, Weaviate, etc.
     return {"status": "ok", "message": "Sentinel AI Memory Service is running."}
+
+
+REQUEST_COUNT = Counter("request_count", "Total HTTP requests", ["method", "endpoint"])
+
+@app.middleware("http")
+async def count_requests(request: Request, call_next):
+    response = await call_next(request)
+    REQUEST_COUNT.labels(request.method, request.url.path).inc()
+    return response
+
+
+@app.get("/metrics", tags=["Health"], response_class=PlainTextResponse)
+async def metrics():
+    """Expose Prometheus metrics."""
+    return generate_latest().decode()

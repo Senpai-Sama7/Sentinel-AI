@@ -185,3 +185,20 @@ class MemoryManager:
             await self.l1.set(key, value_to_store, expire=expire_seconds)
         except Exception as e:
             logging.warning(f"L1 Redis SET failed for key '{key}': {e}.")
+
+    async def ingest_document(self, doc_id: str, content: str, metadata: Optional[Dict[str, Any]] = None) -> None:
+        """Indexes a document into the semantic vector store."""
+        logging.info(f"Ingesting document '{doc_id}' into L2-Chroma")
+        try:
+            self.l2c.add_document(doc_id, content, metadata)
+        except Exception as e:
+            raise MemoryLayerError("L2-Chroma", f"Ingestion failed: {e}")
+
+    async def rag_query(self, query: str, top_k: int = 5) -> Dict[str, Any]:
+        """Perform a simple RAG query using stored documents."""
+        logging.info(f"Running RAG query for: '{query}'")
+        search = await self.semantic_search(query, top_k)
+        context = [doc for docs in search["documents"] for doc in docs]
+        # Placeholder answer generation
+        answer = context[0] if context else ""
+        return {"answer": answer, "context": context}

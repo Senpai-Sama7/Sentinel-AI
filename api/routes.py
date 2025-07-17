@@ -1,6 +1,6 @@
 # api/routes.py
 
-from fastapi import APIRouter, Depends, HTTPException, status, Path
+from fastapi import APIRouter, Depends, HTTPException, status, Path, UploadFile, File
 from fastapi.responses import PlainTextResponse
 from typing import Optional
 import logging
@@ -15,21 +15,21 @@ from core.utils import validate_file_path, validate_commit_hash
 router = APIRouter(prefix="/memory", tags=["Memory Operations"])
 
 @router.get(
-    "/file/{file_path:path}",
+    "/file/{id:path}",
     response_model=str,
     response_class=PlainTextResponse,
     summary="Retrieve File Content",
     description="Fetches the content of a file from the memory system, using the full L0 -> L1 -> L3 (Git) fallback logic. This is the primary endpoint for retrieving source-of-truth data."
 )
 async def get_file_from_memory(
-    file_path: str = Path(..., description="The full path to the file within the configured Git repository.", example="src/main.py"),
+    id: str = Path(..., description="The full path to the file within the configured Git repository.", example="src/main.py"),
     commit_hash: Optional[str] = None,
     manager: MemoryManager = Depends(get_memory_manager)
 ):
-    logging.info(f"API request for file: {file_path} at commit: {commit_hash or 'latest'}")
+    logging.info(f"API request for file: {id} at commit: {commit_hash or 'latest'}")
 
     try:
-        file_path = validate_file_path(file_path)
+        file_path = validate_file_path(id)
         if commit_hash is not None:
             commit_hash = validate_commit_hash(commit_hash)
     except ValueError as err:
@@ -55,6 +55,20 @@ async def search_semantic_memory(
     # The response from ChromaDB already matches the desired structure.
     return results
 
+
+@router.post(
+    "/query",
+    response_model=RAGQueryResponse,
+    summary="Question Answering",
+    description="Executes a RAG query using the indexed memory to answer a question.",
+)
+async def rag_query(
+    request: RAGQueryRequest,
+    manager: MemoryManager = Depends(get_memory_manager)
+):
+    logging.info(f"API RAG query: '{request.query}'")
+    return await manager.rag_query(request.query, request.top_k)
+
 @router.post(
     "/cache",
     response_model=SetMemoryResponse,
@@ -77,3 +91,20 @@ async def set_memory_item(
         message = f"Successfully set key '{request.key}' in L0/L1 cache."
 
     return SetMemoryResponse(key=request.key, status="success", message=message)
+
+@router.post(
+    "/ingest",
+    status_code=status.HTTP_200_OK,
+    summary="Ingest a Document",
+    description="Uploads a document and indexes it into the semantic memory store."
+)
+async def ingest_document(
+    file: UploadFile = File(...),
+    manager: MemoryManager = Depends(get_memory_manager)
+):
+    content = await file.read()
+    if not content:
+        raise HTTPException(status_code=400, detail="Empty file")
+    text = content.decode(errors="replace")
+    await manager.ingest_document(file.filename, text, {"source": file.filename})
+    return {"status": "success", "id": file.filename}

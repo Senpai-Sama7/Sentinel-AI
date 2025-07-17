@@ -8,7 +8,7 @@ import logging
 from orchestrator.api.routes import router as api_router
 from orchestrator.core.grpc_client import grpc_client
 from orchestrator.core.config import LOG_LEVEL
-from orchestrator.core.logging import setup_logging
+from orchestrator.core.log_utils import setup_logging
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

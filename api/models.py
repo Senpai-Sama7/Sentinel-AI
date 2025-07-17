@@ -33,11 +33,16 @@ class SemanticSearchRequest(BaseModel):
         example="What is the purpose of the MemoryManager?"
     )
     top_k: int = Field(
-        5, 
-        gt=0, 
-        le=50, 
+        5,
+        gt=0,
+        le=50,
         description="The number of top results to return."
     )
+
+class RAGQueryRequest(BaseModel):
+    """Request body for RAG question answering."""
+    query: str = Field(..., description="User question for RAG search.")
+    top_k: int = Field(5, gt=0, le=20, description="Number of passages to use")
 
 # --- Response Models ---
 
@@ -58,6 +63,11 @@ class SemanticSearchResponse(BaseModel):
     documents: List[List[str]]
     metadatas: List[List[Dict[str, Any]]]
     distances: List[List[float]]
+
+class RAGQueryResponse(BaseModel):
+    """Structured RAG query result."""
+    answer: str
+    context: List[str]
 
 class ErrorResponse(BaseModel):
     """
