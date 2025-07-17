@@ -37,6 +37,7 @@ RUN addgroup --system --gid 1001 app && adduser --system --uid 1001 --gid 1001 a
 # Copy the installed Python packages from the builder stage's virtual environment.
 # This is the key to a small and secure final image, as it excludes build tools.
 COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder /usr/local/bin/poetry /usr/local/bin/poetry
 
 # Copy the application source code into the final image.
 COPY ./api ./api
