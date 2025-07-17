@@ -21,7 +21,7 @@ RUN pip install poetry
 COPY pyproject.toml poetry.lock ./
 
 # Install all project dependencies, including dev dependencies for potential CI steps.
-RUN poetry install --no-root
+RUN poetry install --no-root --with dev
 
 # --- Stage 2: Final Production Image ---
 # This stage builds the final, lean image for production. It starts from a clean
@@ -37,6 +37,7 @@ RUN addgroup --system --gid 1001 app && adduser --system --uid 1001 --gid 1001 a
 # Copy the installed Python packages from the builder stage's virtual environment.
 # This is the key to a small and secure final image, as it excludes build tools.
 COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder /usr/local/bin/poetry /usr/local/bin/poetry
 
 # Copy the application source code into the final image.
 COPY ./api ./api
