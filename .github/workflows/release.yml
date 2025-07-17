@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Extract version from pyproject.toml
+      - name: Extract version
         id: get_version
         run: |
           VERSION=$(grep '^version =' pyproject.toml | head -1 | cut -d '"' -f2)
@@ -18,10 +18,7 @@ jobs:
       - name: Check CHANGELOG for version
         run: |
           VERSION=${{ steps.get_version.outputs.version }}
-          if ! grep -q "$VERSION" CHANGELOG.md; then
-            echo "CHANGELOG.md does not contain entry for version $VERSION" >&2
-            exit 1
-          fi
+          grep "$VERSION" CHANGELOG.md
 
   docker-and-helm-release:
     needs: changelog-enforcement
@@ -35,7 +32,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Extract version from pyproject.toml
+      - name: Extract version
         id: get_version
         run: |
           VERSION=$(grep '^version =' pyproject.toml | head -1 | cut -d '"' -f2)
@@ -51,8 +48,8 @@ jobs:
           version: v3.13.3
       - name: Package Helm chart
         run: helm package helm --destination packaged-helm
-      - name: Upload Helm chart artifact
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: helm-chart
           path: packaged-helm/*.tgz
+
