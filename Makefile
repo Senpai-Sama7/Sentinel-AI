@@ -25,10 +25,10 @@ build: ## 🏗️ Build all service Docker images
 
 test:
 	@if command -v docker-compose > /dev/null; then \
-		docker-compose -f docker-compose.yml run --rm orchestrator pytest tests; \
+	docker-compose -f docker-compose.yml run --rm orchestrator pytest tests; \
 	else \
-		pytest tests; \
-	fi
+	poetry run pytest tests; \
+fi
 	# Add commands for testing other services here if they have tests
 	# @echo "--> Running tests for Rust ast_parser..."
 	# @docker-compose run --rm ast_parser cargo test
@@ -59,6 +59,7 @@ logs: ## 📄 Tail logs for all running services
 
 lint: ## 🎨 Lint and format all services
 	@echo "--> Linting Python orchestrator..."
+	@if [ ! -f .env ]; then cp .env.example .env; fi
 	@docker-compose run --rm orchestrator poetry run mypy .
 	# Add linting commands for other services here
 	@echo "--> Linting complete."
@@ -66,3 +67,6 @@ lint: ## 🎨 Lint and format all services
 ingest-test:  ## Run ingestion test against sample repo for CI
 	@echo "--> Running ingestion test..."
 	@python3 tools/ingest_git_repo.py --repo memory/data-repo --weaviate http://localhost:8080
+	
+env-lint: ## Check required environment variables are set
+	@./scripts/env_lint.sh
