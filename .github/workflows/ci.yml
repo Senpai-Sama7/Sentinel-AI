@@ -9,6 +9,10 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
+        shell: bash
     env:
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -24,9 +28,13 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install Poetry
-        run: pip install poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "export PATH=\"$HOME/.local/bin:$PATH\"" >> $GITHUB_ENV
       - name: Install dependencies
         run: poetry install
+      - name: Prepare environment file
+        run: cp .env.example .env
       - name: Install Docker Compose
         run: |
           sudo curl -L "https://github.com/docker/compose/releases/download/v2.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
@@ -39,12 +47,6 @@ jobs:
       - name: Ingestion Test
         run: make ingest-test
       - name: Check required env vars
-        run: |
-          missing=0
-          for var in JWT_SECRET OPENAI_API_KEY REDIS_URL CHROMA_HOST CHROMA_PORT APP_CORS_ORIGINS LOG_LEVEL; do
-            if [ -z "${!var}" ]; then
-              echo "Missing required env var: $var" >&2
-              missing=1
-            fi
-          done
-          exit $missing
+        run: make env-lint
+
+
