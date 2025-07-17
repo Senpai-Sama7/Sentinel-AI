@@ -1,6 +1,6 @@
 # docker-compose.yml
 
-version: '3.8'
+# docker compose schema version no longer required
 
 services:
   # The main application service
