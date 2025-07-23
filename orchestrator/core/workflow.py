@@ -17,7 +17,6 @@ class AnalysisState(TypedDict):
     graph_context: str
     rag_context: str
     combined_context: str
-    reasoning: str
     final_answer: str
     error: str | None
 
@@ -68,24 +67,17 @@ def combine_context(state: AnalysisState) -> AnalysisState:
     return state
 
 async def generate_answer(state: AnalysisState) -> AnalysisState:
-    logging.info("Workflow: Generating final answer with LLM using CoT...")
+    logging.info("Workflow: Generating final answer with LLM...")
     if state.get("error"):
         state["final_answer"] = f"Could not generate an answer due to a preceding error: {state['error']}"
         return state
 
     prompt = ChatPromptTemplate.from_messages([
-        (
-            "system",
-            "You are a senior software architect. Provide a step-by-step reasoning followed by a clear final answer.",
-        ),
-        (
-            "human",
-            "User Query: {query}\n\n--- Combined Context ---\n{context}\n\nLet's reason step by step.",
-        ),
+        ("system", "You are a senior software architect. Analyze the provided context from a code graph and documentation to answer the user's query with precision and clarity."),
+        ("human", "User Query: {query}\n\n--- Combined Context ---\n{context}")
     ])
     chain = prompt | llm
     response = await chain.ainvoke({"query": state["query"], "context": state["combined_context"]})
-    state["reasoning"] = response.content
     state["final_answer"] = response.content
     return state
 

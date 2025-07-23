@@ -10,5 +10,3 @@ python-dotenv==1.0.1
 cachetools==5.3.3
 gunicorn==22.0.0
 numpy<2.0
-networkx==3.3
-anytree==2.12.1

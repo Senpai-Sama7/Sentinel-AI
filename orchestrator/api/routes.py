@@ -25,7 +25,6 @@ async def analyze_code(request: AnalysisRequest):
         
         return AnalysisResponse(
             answer=final_state.get("final_answer", "No answer generated."),
-            reasoning=final_state.get("reasoning", ""),
             graph_context=final_state.get("graph_context", ""),
             rag_context=final_state.get("rag_context", "")
         )

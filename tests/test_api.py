@@ -5,24 +5,6 @@ from httpx import AsyncClient
 from unittest.mock import AsyncMock
 import os
 
-# Ensure required environment variables are set for tests
-REQUIRED_ENV_VARS = [
-    "JWT_SECRET",
-    "OPENAI_API_KEY",
-    "REDIS_URL",
-    "CHROMA_HOST",
-    "CHROMA_PORT",
-    "APP_CORS_ORIGINS",
-    "LOG_LEVEL",
-    "WEAVIATE_URL",
-    "GIT_REPO_PATH",
-    "L0_CACHE_SIZE",
-    "GO_PROXY_GRPC_ADDR",
-    "CHROMA_DB_PATH",
-]
-for _var in REQUIRED_ENV_VARS:
-    os.environ.setdefault(_var, "test")
-
 from core.exceptions import NotFoundError, MemoryLayerError
 
 # Mark all tests in this file as requiring an asyncio event loop
