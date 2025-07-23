@@ -38,6 +38,8 @@ A production-ready **semantic memory** micro-service that transforms unstructure
   100% pytest coverage, Locust load tests, chaos experiments. Self-auditing scripts ensure schema consistency and loop detection.
 - **Documentation & Runbooks:**\
   C4 diagrams and Pydantic schemas, Postman collections, code snippets, and operational playbooks for incident response.
+- **Graph-Based Knowledge Modeling:**\
+  Weighted, directed graphs with node and edge attributes for representing assets. See [docs/knowledge_graph.md](docs/knowledge_graph.md).
 
 ---
 
