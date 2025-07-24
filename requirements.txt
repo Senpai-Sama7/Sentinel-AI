@@ -3,7 +3,7 @@ fastapi==0.110.0
 uvicorn[standard]==0.35.0
 redis[hiredis]==6.2.0
 weaviate-client==4.5.4
-chromadb==0.4.24
+chromadb==0.4.24  # Vector store
 gitpython==3.1.43
 pydantic==2.7.1
 python-dotenv==1.0.1
