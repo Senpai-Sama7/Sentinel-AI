@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentinel AI: An Interactive Overview</title>
+    <!-- Chosen Palette: Digital Abyss -->
+    <!-- Application Structure Plan: A top-to-bottom single-page narrative infographic. The flow is designed to tell a story: 1. Hook (What is it?), 2. Architecture (How it works?), 3. Economic Advantage (Why is it better?), 4. Capabilities (What can it do?), 5. Technical Deep Dive (How powerful is it?), 6. Roadmap (Where is it going?), and 7. Call to Action. This structure guides the user from a high-level value proposition to detailed features and future plans, making complex information digestible and persuasive. -->
+    <!-- Visualization & Content Choices: 
+        - Architecture: Goal: Organize -> Viz: Custom HTML/CSS Flow Diagram -> Justification: Clearly illustrates the multi-layered memory system which is a core concept, without using prohibited SVG/Mermaid.
+        - CAG Breakdown: Goal: Inform/Compare -> Viz: Chart.js Donut Chart -> Justification: Effectively shows the proportion of queries handled by the cache, visually representing the efficiency of the CAG model.
+        - Performance KPIs: Goal: Inform -> Viz: Large Text Stats -> Justification: Makes key performance metrics stand out for immediate impact.
+        - AST Parser Performance: Goal: Compare -> Viz: Chart.js Horizontal Bar Chart -> Justification: Provides a clear, easy-to-read comparison of parsing speeds across different languages.
+        - Roadmap: Goal: Change/Organize -> Viz: Custom HTML/CSS Vertical Timeline -> Justification: A classic, intuitive way to display chronological events and future plans.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        @keyframes digital-abyss-bg {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #E0E7FF;
+            overflow-x: hidden;
+            background: linear-gradient(60deg, #0f0c29, #302b63, #24243e, #0f0c29);
+            background-size: 400% 400%;
+            animation: digital-abyss-bg 25s ease infinite;
+        }
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0f0c29;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1s ease-out;
+        }
+        #loading-video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -1;
+            transform: translateX(-50%) translateY(-50%);
+            opacity: 0.15;
+        }
+        .loader-text {
+            font-size: 2rem;
+            font-weight: 900;
+            color: white;
+            opacity: 0;
+            animation: fadeInOut 2.5s ease-in-out infinite;
+        }
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+        }
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 300px;
+            width: 100%;
+            max-width: 450px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .flow-arrow::after {
+            content: '↓';
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #00E5FF;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .glass-card {
+            background: rgba(26, 30, 40, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        .glass-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 229, 255, 0.3);
+        }
+        .animate-on-scroll {
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="loading-screen">
+        <video id="loading-video" autoplay muted loop playsinline>
+            <source src="https://cdn.pixabay.com/video/2022/09/20/131102-752763231_large.mp4" type="video/mp4">
+        </video>
+        <div class="loader-text">SENTINEL AI</div>
+    </div>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <main class="relative z-10 container mx-auto p-4 md:p-8 max-w-6xl">
+
+        <header class="text-center my-12 md:my-20">
+            <h1 class="text-4xl md:text-6xl font-black text-white mb-4 animate-on-scroll">Sentinel AI</h1>
+            <p class="text-xl md:text-2xl font-medium text-slate-300 animate-on-scroll" style="transition-delay: 150ms;">The Cognitive Engine for Your Code</p>
+            <p class="max-w-3xl mx-auto mt-6 text-lg text-slate-400 animate-on-scroll" style="transition-delay: 300ms;">
+                Sentinel AI transforms your codebase and documentation from static artifacts into a dynamic, reasoning partner. It's time to stop searching and start understanding.
+            </p>
+        </header>
+
+        <section id="architecture" class="my-16 md:my-24">
+            <h2 class="text-3xl font-bold text-center text-white mb-4 animate-on-scroll">The Architecture of Understanding</h2>
+            <p class="text-center max-w-2xl mx-auto text-slate-400 mb-12 animate-on-scroll" style="transition-delay: 150ms;">Sentinel AI operates on a sophisticated multi-layered memory system, ensuring every query is answered with optimal speed and context. This is the foundation of our Cached Augmented Generation (CAG) model.</p>
+            <div class="flex flex-col items-center">
+                <div class="text-center p-6 rounded-xl w-full max-w-lg mb-4 glass-card animate-on-scroll">
+                    <p class="text-xl font-bold text-white">Your Natural Language Query</p>
+                    <p class="text-md text-slate-400 italic mt-1">"Show me all error handling in payment flows since Q1."</p>
+                </div>
+                <div class="flow-arrow animate-on-scroll"></div>
+                <div class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
+                    <div class="p-6 rounded-xl glass-card" style="transition-delay: 50ms;">
+                        <p class="text-sm font-bold text-white bg-red-500 rounded-full inline-block px-3 py-1 mb-3">L0</p>
+                        <h3 class="text-xl font-bold text-white">Neural Cache</h3>
+                        <p class="text-slate-400 mt-2 text-sm">Instant, sub-millisecond responses from an in-memory cache. The system's muscle memory.</p>
+                    </div>
+                    <div class="p-6 rounded-xl glass-card" style="transition-delay: 150ms;">
+                        <p class="text-sm font-bold text-white bg-green-500 rounded-full inline-block px-3 py-1 mb-3">L1</p>
+                        <h3 class="text-xl font-bold text-white">Distributed Memory</h3>
+                        <p class="text-slate-400 mt-2 text-sm">A Redis-backed cache creates a shared brain for the entire team, compounding knowledge.</p>
+                    </div>
+                    <div class="p-6 rounded-xl glass-card" style="transition-delay: 250ms;">
+                        <p class="text-sm font-bold text-white bg-blue-500 rounded-full inline-block px-3 py-1 mb-3">L2</p>
+                        <h3 class="text-xl font-bold text-white">Semantic Memory</h3>
+                        <p class="text-slate-400 mt-2 text-sm">Vector databases map complex relationships for deep, context-aware understanding.</p>
+                    </div>
+                    <div class="p-6 rounded-xl glass-card" style="transition-delay: 350ms;">
+                        <p class="text-sm font-bold text-white bg-purple-500 rounded-full inline-block px-3 py-1 mb-3">L3</p>
+                        <h3 class="text-xl font-bold text-white">Source of Truth</h3>
+                        <p class="text-slate-400 mt-2 text-sm">Git-backed store provides perfect historical context for time-aware reasoning.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="cag" class="my-16 md:my-24 p-8 rounded-2xl glass-card animate-on-scroll">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div class="lg:pr-8">
+                    <h2 class="text-3xl font-bold text-white mb-4">The CAG Economic Advantage</h2>
+                    <p class="text-slate-400 mb-6">
+                        Cached Augmented Generation isn't just about speed; it's about efficiency. By intelligently caching responses, Sentinel AI dramatically reduces costly LLM calls and computational overhead. This chart shows a typical query distribution, where the vast majority of requests are served instantly from low-cost caches.
+                    </p>
+                     <ul class="space-y-3 text-slate-300 font-medium">
+                        <li class="flex items-center"><span class="w-3 h-3 rounded-full bg-green-500 mr-3"></span>75% of queries resolved by L0/L1 Cache</li>
+                        <li class="flex items-center"><span class="w-3 h-3 rounded-full bg-blue-500 mr-3"></span>20% answered by L2 Semantic Search</li>
+                        <li class="flex items-center"><span class="w-3 h-3 rounded-full bg-purple-500 mr-3"></span>5% require full L3 Git analysis</li>
+                    </ul>
+                </div>
+                 <div class="chart-container">
+                    <canvas id="cagChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="capabilities" class="my-16 md:my-24">
+            <h2 class="text-3xl font-bold text-center text-white mb-12 animate-on-scroll">Core Capabilities</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="p-6 rounded-xl glass-card" style="transition-delay: 50ms;">
+                    <h3 class="text-xl font-bold text-white mb-2">💬 Conversational Search</h3>
+                    <p class="text-slate-400">Stop guessing keywords. Ask complex questions about your code and documentation in plain English and get precise, relevant answers.</p>
+                </div>
+                <div class="p-6 rounded-xl glass-card" style="transition-delay: 150ms;">
+                    <h3 class="text-xl font-bold text-white mb-2">⏳ Time-Aware Intelligence</h3>
+                    <p class="text-slate-400">Understand the "why" behind code changes. Sentinel AI analyzes your Git history to surface the rationale behind architectural decisions and track technical debt.</p>
+                </div>
+                <div class="p-6 rounded-xl glass-card" style="transition-delay: 250ms;">
+                    <h3 class="text-xl font-bold text-white mb-2">🤖 Multi-Agent Reasoning</h3>
+                    <p class="text-slate-400">Specialized AI agents work together to analyze code topology, evolution, and context, providing insights that a single model would miss.</p>
+                </div>
+                 <div class="p-6 rounded-xl glass-card" style="transition-delay: 350ms;">
+                    <h3 class="text-xl font-bold text-white mb-2">🔬 Advanced AST Analysis</h3>
+                    <p class="text-slate-400">The high-speed Rust parser builds Abstract Syntax Trees to map hidden dependencies and complex patterns across multiple languages.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="performance" class="my-16 md:my-24">
+            <h2 class="text-3xl font-bold text-center text-white mb-12 animate-on-scroll">Under the Hood: Parsing Performance</h2>
+            <div class="p-6 rounded-xl glass-card animate-on-scroll">
+                <p class="text-center max-w-2xl mx-auto text-slate-400 mb-6">The performance of the Rust-based AST parser is critical for rapid analysis. It efficiently processes various languages, enabling deep code intelligence at scale.</p>
+                <div class="chart-container" style="max-width: 800px; height: 400px;">
+                    <canvas id="languageChart"></canvas>
+                </div>
+            </div>
+        </section>
+        
+        <section id="roadmap" class="my-16 md:my-24">
+            <h2 class="text-3xl font-bold text-center text-white mb-12 animate-on-scroll">The Future Roadmap</h2>
+            <div class="relative max-w-2xl mx-auto">
+                <div class="border-l-4 border-[#00E5FF] absolute h-full top-0 left-4 md:left-1/2 -ml-px"></div>
+                <div class="space-y-12">
+                    <div class="relative glass-card" style="transition-delay: 50ms;">
+                        <div class="ml-12 md:ml-0 md:flex items-center md:justify-end">
+                            <div class="md:w-1/2 md:pr-8 text-right">
+                                <p class="text-xl font-bold text-white">Q3 2025</p>
+                            </div>
+                             <div class="md:w-1/2 md:pl-8">
+                                <div class="p-6 rounded-xl">
+                                    <p class="font-bold text-lg text-white">Predictive Technical Debt</p>
+                                    <p class="text-slate-400 text-sm mt-1">Proactively identify and model tech debt accumulation patterns.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="absolute top-1/2 -mt-3 w-6 h-6 rounded-full bg-[#00E5FF] shadow left-4 -ml-3 md:left-1/2"></div>
+                    </div>
+                     <div class="relative glass-card" style="transition-delay: 150ms;">
+                        <div class="ml-12 md:ml-0 md:flex items-center">
+                            <div class="md:w-1/2 md:text-right md:pr-8">
+                                <div class="p-6 rounded-xl">
+                                    <p class="font-bold text-lg text-white">Autonomous Documentation</p>
+                                    <p class="text-slate-400 text-sm mt-1">Generate accurate, context-aware documentation automatically from your codebase.</p>
+                                </div>
+                            </div>
+                            <div class="md:w-1/2 md:pl-8">
+                                 <p class="text-xl font-bold text-white">Q4 2025</p>
+                            </div>
+                        </div>
+                        <div class="absolute top-1/2 -mt-3 w-6 h-6 rounded-full bg-[#00E5FF] shadow left-4 -ml-3 md:left-1/2"></div>
+                    </div>
+                     <div class="relative glass-card" style="transition-delay: 250ms;">
+                         <div class="ml-12 md:ml-0 md:flex items-center md:justify-end">
+                            <div class="md:w-1/2 md:pr-8 text-right">
+                                <p class="text-xl font-bold text-white">2026+</p>
+                            </div>
+                             <div class="md:w-1/2 md:pl-8">
+                                <div class="p-6 rounded-xl">
+                                    <p class="font-bold text-lg text-white">Multi-Repository Intelligence</p>
+                                    <p class="text-slate-400 text-sm mt-1">Synthesize knowledge and dependencies across your entire microservice ecosystem.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="absolute top-1/2 -mt-3 w-6 h-6 rounded-full bg-[#00E5FF] shadow left-4 -ml-3 md:left-1/2"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="text-center border-t border-gray-700 pt-12 mt-16">
+            <p class="font-bold text-2xl text-white animate-on-scroll">Ready to think with your code?</p>
+            <a href="https://github.com/Senpai-Sama7/Sentinel-AI" class="mt-6 inline-block bg-slate-100 text-[#1A2E2E] font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-[#00E5FF] hover:text-black transition-all duration-300 transform hover:scale-105 animate-on-scroll" style="transition-delay: 150ms;">
+                Explore on GitHub
+            </a>
+            <p class="text-sm text-slate-500 mt-8 animate-on-scroll" style="transition-delay: 300ms;">MIT Licensed. Built with ❤️ and the conviction that your code should understand you, too.</p>
+        </footer>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loadingScreen = document.getElementById('loading-screen');
+            setTimeout(() => {
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 1000);
+            }, 2500);
+
+            let scene, camera, renderer, particles, lines;
+            const mouse = new THREE.Vector2();
+
+            function init() {
+                scene = new THREE.Scene();
+                camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                camera.position.z = 5;
+                renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg-canvas'), alpha: true });
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+                const particlesCount = 300;
+                const positions = new Float32Array(particlesCount * 3);
+                for (let i = 0; i < particlesCount; i++) {
+                    positions[i * 3] = (Math.random() - 0.5) * 15;
+                    positions[i * 3 + 1] = (Math.random() - 0.5) * 15;
+                    positions[i * 3 + 2] = (Math.random() - 0.5) * 15;
+                }
+                const particlesGeometry = new THREE.BufferGeometry();
+                particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                const particlesMaterial = new THREE.PointsMaterial({
+                    color: 0xff00ff,
+                    size: 0.035,
+                    transparent: true,
+                    opacity: 0.7,
+                    sizeAttenuation: true
+                });
+                particles = new THREE.Points(particlesGeometry, particlesMaterial);
+                scene.add(particles);
+
+                const linesMaterial = new THREE.LineBasicMaterial({
+                    color: 0x00E5FF,
+                    transparent: true,
+                    opacity: 0.1
+                });
+                const linesGeometry = new THREE.BufferGeometry();
+                lines = new THREE.LineSegments(linesGeometry, linesMaterial);
+                scene.add(lines);
+
+                window.addEventListener('resize', onWindowResize, false);
+                document.addEventListener('mousemove', onMouseMove, false);
+            }
+
+            function onWindowResize() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+
+            function onMouseMove(event) {
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            }
+
+            function animate() {
+                requestAnimationFrame(animate);
+
+                const positions = particles.geometry.attributes.position.array;
+                const linePositions = [];
+                const particleCount = particles.geometry.attributes.position.count;
+                
+                particles.rotation.y += 0.0002;
+
+                for (let i = 0; i < particleCount; i++) {
+                    for (let j = i + 1; j < particleCount; j++) {
+                        const p1 = new THREE.Vector3(positions[i*3], positions[i*3+1], positions[i*3+2]);
+                        const p2 = new THREE.Vector3(positions[j*3], positions[j*3+1], positions[j*3+2]);
+                        const distance = p1.distanceTo(p2);
+
+                        if (distance < 1.5) {
+                            linePositions.push(p1.x, p1.y, p1.z);
+                            linePositions.push(p2.x, p2.y, p2.z);
+                        }
+                    }
+                }
+
+                lines.geometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
+                lines.geometry.attributes.position.needsUpdate = true;
+
+                camera.position.x += (mouse.x * 0.5 - camera.position.x) * 0.02;
+                camera.position.y += (-mouse.y * 0.5 - camera.position.y) * 0.02;
+                camera.lookAt(scene.position);
+
+                renderer.render(scene, camera);
+            }
+            
+            init();
+            animate();
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.animate-on-scroll, .glass-card').forEach(el => {
+                observer.observe(el);
+            });
+        });
+
+        const tooltipTitleCallback = (tooltipItems) => {
+            const item = tooltipItems[0];
+            let label = item.chart.data.labels[item.dataIndex];
+            if (Array.isArray(label)) {
+                return label.join(' ');
+            }
+            return label;
+        };
+        
+        const sharedChartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+                duration: 1500,
+                easing: 'easeInOutQuart'
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        font: { family: "'Inter', sans-serif", size: 14 },
+                        color: '#E0E7FF'
+                    }
+                },
+                tooltip: {
+                    backgroundColor: '#E0E7FF',
+                    titleColor: '#1A2E2E',
+                    bodyColor: '#1A2E2E',
+                    callbacks: { title: tooltipTitleCallback },
+                    bodyFont: { family: "'Inter', sans-serif" },
+                    titleFont: { family: "'Inter', sans-serif", weight: 'bold' },
+                    padding: 10,
+                    cornerRadius: 4
+                }
+            },
+            scales: {
+                y: {
+                    ticks: { font: { family: "'Inter', sans-serif" }, color: '#E0E7FF' },
+                    grid: { color: 'rgba(224, 231, 255, 0.1)' }
+                },
+                x: {
+                    ticks: { font: { family: "'Inter', sans-serif" }, color: '#E0E7FF' },
+                    grid: { display: false }
+                }
+            }
+        };
+
+        const cagData = {
+            labels: ['L0/L1 Cache', 'L2 Semantic', 'L3 Git Analysis'],
+            datasets: [{
+                label: 'Query Resolution Source',
+                data: [75, 20, 5],
+                backgroundColor: ['#00E5FF', '#7E57C2', '#66BB6A'],
+                borderColor: 'rgba(15, 12, 41, 0.5)',
+                borderWidth: 5,
+                hoverOffset: 8
+            }]
+        };
+
+        const cagCtx = document.getElementById('cagChart').getContext('2d');
+        new Chart(cagCtx, {
+            type: 'doughnut',
+            data: cagData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: sharedChartOptions.plugins.tooltip
+                }
+            }
+        });
+        
+        const languageData = {
+            labels: ['Python', ['JavaScript/', 'TypeScript'], 'Go', 'Rust'],
+            datasets: [{
+                label: 'Files Parsed per Second',
+                data: [48, 45, 60, 35],
+                backgroundColor: ['#66BB6A', '#42A5F5', '#26A69A', '#7E57C2'],
+                borderColor: '#E0E7FF',
+                borderWidth: 2,
+                borderRadius: 5,
+                borderSkipped: false
+            }]
+        };
+
+        const languageCtx = document.getElementById('languageChart').getContext('2d');
+        new Chart(languageCtx, {
+            type: 'bar',
+            data: languageData,
+            options: { ...sharedChartOptions,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Files / Second',
+                            font: { family: "'Inter', sans-serif", weight: 'bold', size: 14 },
+                            color: '#E0E7FF'
+                        },
+                        ticks: { color: '#E0E7FF' },
+                        grid: { color: 'rgba(224, 231, 255, 0.1)' }
+                    },
+                    y: {
+                        ticks: { color: '#E0E7FF', font: { size: 14 } },
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: sharedChartOptions.plugins.tooltip
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>
