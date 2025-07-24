@@ -3,7 +3,7 @@ name: Grafana Dashboard Lint
 on:
   push:
     paths:
-      - 'docs/dashboards/*.json'
+      - 'docs/dashboards/**'
       - '.github/workflows/grafana-lint.yml'
 
 jobs:
