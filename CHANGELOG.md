@@ -16,5 +16,30 @@ All notable changes to this project will be documented in this file.
 - Prometheus metrics & OpenTelemetry traces.
 - Documentation: architecture, schema, runbooks.
 
+
 ## [1.0.0] - 2025-07-24
-- Initial release notes...
+
+### Added
+- Initial release of Sentinel-AI.
+- Core AI modules for data processing.
+- Release workflow for continuous integration and deployment.
+- Basic documentation (`README.md`) and setup instructions.
+- Sample configuration files.
+- First implementation of the main Sentinel-AI algorithm.
+- Logging and error handling features.
+- Unit tests for main application code.
+
+### Changed
+- N/A
+
+### Deprecated
+- N/A
+
+### Removed
+- N/A
+
+### Fixed
+- N/A
+
+### Security
+- N/A
