@@ -12,3 +12,8 @@ gunicorn==22.0.0
 numpy<2.0
 networkx==3.3
 anytree==2.12.1
+
+# --- NEW DEPENDENCIES ---
+unstructured[local-inference]
+pypdf
+python-docx
