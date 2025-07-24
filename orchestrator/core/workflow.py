@@ -8,6 +8,7 @@ from langgraph.graph import StateGraph, END
 from orchestrator.core.grpc_client import grpc_client
 from orchestrator.models import ast_service_pb2
 from orchestrator.core.rag import RAGSystem
+from core.reasoning import parse_reasoning_steps, ReasoningTree
 
 # --- State Definition ---
 class AnalysisState(TypedDict):
@@ -18,6 +19,8 @@ class AnalysisState(TypedDict):
     rag_context: str
     combined_context: str
     reasoning: str
+    reasoning_steps: List[str]
+    reasoning_tree: ReasoningTree
     final_answer: str
     error: str | None
 
@@ -85,8 +88,15 @@ async def generate_answer(state: AnalysisState) -> AnalysisState:
     ])
     chain = prompt | llm
     response = await chain.ainvoke({"query": state["query"], "context": state["combined_context"]})
-    state["reasoning"] = response.content
-    state["final_answer"] = response.content
+    text = response.content
+    steps = parse_reasoning_steps(text)
+    tree = ReasoningTree("analysis")
+    tree.add_branches("root", steps)
+
+    state["reasoning"] = text
+    state["reasoning_steps"] = steps
+    state["reasoning_tree"] = tree
+    state["final_answer"] = text
     return state
 
 # --- Graph Assembly ---
