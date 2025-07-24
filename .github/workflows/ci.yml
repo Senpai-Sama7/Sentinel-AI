@@ -48,6 +48,14 @@ jobs:
         run: make ingest-test
       - name: Check required env vars
         run: make env-lint
-         
-
-
+  ingest-and-validate:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run ingestion job
+        run: make ingest-test
+      - name: Validate ingestion
+        run: |
+          # This is a simple validation. In a real-world scenario, you might query the vector store to verify the data.
+          docker-compose logs orchestrator | grep "Queued for ingestion" || exit 1
