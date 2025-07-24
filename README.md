@@ -1,6 +1,10 @@
 # 🚀 Sentinel AI: Next-Level Code Intelligence
 
 <p align="center">
+  <img src="assets/Sentinel-AI_logo.png" alt="Sentinel-AI" width="300"/>
+</p>
+
+<p align="center">
   <img src="https://img.shields.io/github/license/Senpai-Sama7/Sentinel-AI?style=flat-square" alt="License"/>
   <img src="https://img.shields.io/badge/python-3.8%2B-blue?style=flat-square" alt="Python Version"/>
   <img src="https://img.shields.io/badge/Docker-ready-0db7ed?logo=docker&logoColor=white&style=flat-square" alt="Docker Ready"/>
