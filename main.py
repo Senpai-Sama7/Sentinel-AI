@@ -36,6 +36,12 @@ async def lifespan(app: FastAPI):
             )
             raise e
 
+    try:
+        yield
+    finally:
+        if manager is not None:
+            await manager.shutdown()
+
 
 app = FastAPI(
     title="Sentinel AI Memory Service",
