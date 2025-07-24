@@ -34,3 +34,36 @@ def test_weighted_shortest_path():
     graph.add_connection("C", "B", weight=1)
 
     assert graph.shortest_path("A", "B") == ["A", "C", "B"]
+
+    
+def test_no_path_available():
+    graph = KnowledgeGraph()
+    graph.add_asset("A")
+    graph.add_asset("B")
+    graph.add_asset("C")
+    graph.add_connection("A", "B")
+
+    assert graph.paths("A", "C") == []
+
+    import pytest
+    import networkx as nx
+    with pytest.raises(nx.NetworkXNoPath):
+        graph.shortest_path("A", "C")
+
+
+def test_multiple_valid_paths():
+    graph = KnowledgeGraph()
+    graph.add_asset("A")
+    graph.add_asset("B")
+    graph.add_asset("C")
+    graph.add_asset("D")
+    graph.add_connection("A", "B", weight=1)
+    graph.add_connection("A", "C", weight=2)
+    graph.add_connection("C", "B", weight=1)
+    graph.add_connection("A", "D", weight=2)
+    graph.add_connection("D", "B", weight=1)
+
+    paths = graph.paths("A", "B")
+    expected = [["A", "B"], ["A", "C", "B"], ["A", "D", "B"]]
+    assert sorted(paths) == sorted(expected)
+    assert graph.shortest_path("A", "B") == ["A", "B"]

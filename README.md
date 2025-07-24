@@ -39,7 +39,10 @@ A production-ready **semantic memory** micro-service that transforms unstructure
 - **Documentation & Runbooks:**\
   C4 diagrams and Pydantic schemas, Postman collections, code snippets, and operational playbooks for incident response.
 - **Graph-Based Knowledge Modeling:**\
-  Weighted, directed graphs with node and edge attributes for representing assets. See [docs/knowledge_graph.md](docs/knowledge_graph.md).
+  Weighted, directed graphs with node and edge attributes for representing assets. See [docs/knowledge_graph.md]
+  - **Reasoning Engine:**\
+  Chain- and tree-of-thought parsing with branch tracking for auditability. See [docs/reasoning_engine.md](docs/reasoning_engine.md).
+
 
 ---
 
@@ -125,6 +128,19 @@ curl -N -X POST http://localhost:8000/api/v1/memory/query \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $JWT" \
   -d '{"query":"Explain auth flow","stream":true}'
+```
+
+### Knowledge Graph & Attack Paths
+
+```python
+from graphs.knowledge_graph import KnowledgeGraph
+
+net = KnowledgeGraph()
+net.add_asset("Server_A", os="Ubuntu", risk_score=5)
+net.add_asset("DB")
+net.add_connection("Server_A", "DB", type="sql", risk=8)
+
+print(net.paths("Server_A", "DB"))
 ```
 
 ---
