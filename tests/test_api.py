@@ -55,7 +55,7 @@ async def test_get_file_success(
     file_content = "print('hello world')"
     mock_memory_manager.get_file_content.return_value = file_content
 
-    response = await async_test_app_client.get(f"/memory/file/{file_path}")
+    response = await async_test_app_client.get(f"/api/v1/memory/file/{file_path}")
 
     assert response.status_code == 200
     assert response.text == file_content
@@ -74,7 +74,7 @@ async def test_get_file_not_found(
         f"File '{file_path}' not found."
     )
 
-    response = await async_test_app_client.get(f"/memory/file/{file_path}")
+    response = await async_test_app_client.get(f"/api/v1/memory/file/{file_path}")
 
     assert response.status_code == 404
     assert response.json() == {"message": f"File '{file_path}' not found."}
@@ -91,7 +91,7 @@ async def test_get_file_memory_layer_failure(
         "L3-Git", "Repository is corrupted."
     )
 
-    response = await async_test_app_client.get(f"/memory/file/{file_path}")
+    response = await async_test_app_client.get(f"/api/v1/memory/file/{file_path}")
 
     assert response.status_code == 503
     assert "A required memory service is unavailable" in response.json()["message"]
@@ -112,7 +112,7 @@ async def test_semantic_search_success(
     mock_memory_manager.semantic_search.return_value = mock_response
 
     request_data = {"query": "test query", "top_k": 1}
-    response = await async_test_app_client.post("/memory/search", json=request_data)
+    response = await async_test_app_client.post("/api/v1/memory/search", json=request_data)
 
     assert response.status_code == 200
     assert response.json()["documents"][0][0] == "This is a test document."
