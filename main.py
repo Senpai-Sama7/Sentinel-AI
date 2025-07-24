@@ -84,9 +84,9 @@ async def generic_exception_handler(request: Request, exc: Exception):
         content={"message": "An unexpected internal server error occurred."},
     )
 
-# Include the API router with a versioned prefix
-app.include_router(router, prefix="/api/v1")
-app.include_router(advanced_router, prefix="/api/v1")
+# Include the API routers without a versioned prefix
+app.include_router(router)
+app.include_router(advanced_router)
 
 @app.get("/health", tags=["Health"])
 async def health_check(manager: MemoryManager = Depends(get_memory_manager)):

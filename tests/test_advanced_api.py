@@ -1,5 +1,10 @@
 import pytest
 from httpx import AsyncClient
+from main import app
+
+print("Registered routes:")
+for route in app.routes:
+    print(route.path)
 
 
 @pytest.mark.asyncio
