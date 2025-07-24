@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     defaults:
       run:
         working-directory: .
@@ -48,6 +48,6 @@ jobs:
         run: make ingest-test
       - name: Check required env vars
         run: make env-lint
-        runs-on: self-hosted 
+         
 
 
