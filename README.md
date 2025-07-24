@@ -1,6 +1,6 @@
 # Sentinel AI
 
-[![CI](https://github.com/your-org/Sentinel-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/Sentinel-AI/actions/workflows/ci.yml)
+[![CI](https://github.com/Senpai-sama7/Sentinel-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/Sentinel-AI/actions/workflows/ci.yml)
 [![Helm Chart](https://img.shields.io/badge/helm-chart-blue)](https://github.com/your-org/Sentinel-AI/tree/main/helm)
 [![Docker](https://img.shields.io/docker/pulls/your-org/sentinel-memory-service)](https://hub.docker.com/r/your-org/sentinel-memory-service)
 
