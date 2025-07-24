@@ -26,6 +26,7 @@ class MultiAgentSimulator:
         self.global_best = self.agents[0].position.copy()
 
     def step(self) -> None:
+        """Advance the simulation by one iteration."""
         for agent in self.agents:
             r = np.random.rand(self.dim)
             agent.velocity += r * (self.global_best - agent.position)
@@ -34,6 +35,7 @@ class MultiAgentSimulator:
                 self.global_best = agent.position.copy()
 
     def run(self, steps: int = 10) -> np.ndarray:
+        """Run multiple iterations and return the best position found."""
         for _ in range(steps):
             self.step()
         return self.global_best

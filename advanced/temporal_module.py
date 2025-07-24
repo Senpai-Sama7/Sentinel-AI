@@ -20,9 +20,11 @@ class TemporalSequenceLogger:
         self._logs: Dict[str, List[tuple[str, float]]] = {}
 
     def log_action(self, user_id: str, action: str) -> None:
+        """Record a user action with the current timestamp."""
         self._logs.setdefault(user_id, []).append((action, time.time()))
 
     def get_sequence(self, user_id: str) -> List[tuple[str, float]]:
+        """Retrieve the action history for a given user."""
         return self._logs.get(user_id, [])
 
 

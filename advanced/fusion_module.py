@@ -15,6 +15,7 @@ class MultiModalFusion:
         image_vec: Optional[np.ndarray] = None,
         graph_vec: Optional[np.ndarray] = None,
     ) -> np.ndarray:
+        """Concatenate available modality vectors into a single feature."""
         parts = [text_vec, code_vec]
         if image_vec is not None:
             parts.append(image_vec)
