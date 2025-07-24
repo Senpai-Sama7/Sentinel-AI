@@ -3,11 +3,15 @@ import sys
 import logging
 from git import Repo, GitCommandError
 import weaviate
+from core.metrics import documents_ingested_total
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from core.config import GIT_REPO_PATH, WEAVIATE_URL
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
+
 
 def ingest_repository():
     if not os.path.isdir(GIT_REPO_PATH):
@@ -29,10 +33,10 @@ def ingest_repository():
 
     with client.batch as batch:
         for blob in commit.tree.traverse():
-            if blob.type == 'blob':
+            if blob.type == "blob":
                 file_path = blob.path
                 try:
-                    content = blob.data_stream.read().decode(errors='replace')
+                    content = blob.data_stream.read().decode(errors="replace")
                     properties = {
                         "key": file_path,
                         "value": content,
@@ -41,17 +45,28 @@ def ingest_repository():
                         "timestamp": commit.committed_datetime.isoformat(),
                     }
                     batch.add_data_object(properties, "MemoryNode")
+                    documents_ingested_total.inc()
                     logging.info(f"Queued for ingestion: {file_path}")
                 except Exception as e:
                     logging.error(f"Failed to process or queue file '{file_path}': {e}")
-    
-    logging.info("Finished queuing all files. Ingestion is now running in the background.")
+
+    logging.info(
+        "Finished queuing all files. Ingestion is now running in the background."
+    )
+
 
 if __name__ == "__main__":
     import argparse
-    parser = argparse.ArgumentParser(description="Ingest a git repository into Weaviate.")
-    parser.add_argument("--repo", type=str, default=GIT_REPO_PATH, help="Path to the git repository")
-    parser.add_argument("--weaviate", type=str, default=WEAVIATE_URL, help="Weaviate URL")
+
+    parser = argparse.ArgumentParser(
+        description="Ingest a git repository into Weaviate."
+    )
+    parser.add_argument(
+        "--repo", type=str, default=GIT_REPO_PATH, help="Path to the git repository"
+    )
+    parser.add_argument(
+        "--weaviate", type=str, default=WEAVIATE_URL, help="Weaviate URL"
+    )
     args = parser.parse_args()
 
     # Override config if args are provided

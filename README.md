@@ -82,8 +82,24 @@ A production-ready **semantic memory** micro-service that transforms unstructure
    # Visit http://localhost:8000/docs
    ```
 3. **Stop & Clean**
+  ```bash
+  docker compose down -v
+  ```
+
+## Getting Started
+
+1. **Install Dependencies**
    ```bash
-   docker compose down -v
+   pip install poetry
+   poetry install --with dev
+   ```
+2. **Run the Application**
+   ```bash
+   docker compose up --build -d
+   ```
+3. **Run the Test Suite**
+   ```bash
+   make test
    ```
 
 ---
