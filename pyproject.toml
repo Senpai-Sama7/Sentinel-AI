@@ -21,6 +21,7 @@ numpy = "<2.0"
 networkx = "^3.3"
 anytree = "^2.12.1"
 gunicorn = "^22.0.0" # For production deployment
+prometheus-client = "^0.20.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.0"

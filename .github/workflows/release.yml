@@ -4,8 +4,16 @@ on:
   push:
     tags:
       - 'v*.*.*'
+  pull_request:
 
 jobs:
+  lint-commits:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: amannn/action-semantic-pull-request@v5
+        with:
+          types: feat, fix, chore, docs, refactor, style, test, perf
+
   changelog-enforcement:
     runs-on: ubuntu-latest
     steps:
@@ -20,8 +28,18 @@ jobs:
           VERSION=${{ steps.get_version.outputs.version }}
           grep "$VERSION" CHANGELOG.md
 
-  docker-and-helm-release:
+  generate-changelog:
     needs: changelog-enforcement
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate Changelog
+        run: |
+          npm install -g conventional-changelog-cli
+          conventional-changelog -p conventionalcommits -i CHANGELOG.md -s -r 0
+
+  docker-and-helm-release:
+    needs: generate-changelog
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -52,3 +70,7 @@ jobs:
         with:
           name: helm-chart
           path: packaged-helm/*.tgz
+      - name: Publish Helm chart
+        uses: helm/chart-releaser-action@v1.6.0
+        env:
+          CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}

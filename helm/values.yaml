@@ -45,3 +45,25 @@ ingress:
     - secretName: sentinel-tls
       hosts:
         - sentinel.example.com
+
+# Advanced customization examples
+# podAntiAffinity:
+#   requiredDuringSchedulingIgnoredDuringExecution:
+#     - labelSelector:
+#         matchExpressions:
+#           - key: app
+#             operator: In
+#             values:
+#               - sentinel-memory
+#       topologyKey: kubernetes.io/hostname
+
+# networkPolicy:
+#   ingress:
+#     - from:
+#         - podSelector: {}
+#   egress:
+#     - to:
+#         - podSelector: {}
+
+# podDisruptionBudget:
+#   minAvailable: 1
