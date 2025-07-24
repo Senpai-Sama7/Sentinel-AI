@@ -71,6 +71,6 @@ jobs:
           name: helm-chart
           path: packaged-helm/*.tgz
       - name: Publish Helm chart
-        uses: helm/chart-releaser-action@v1.6.0
+        uses: helm/chart-releaser-action@v1.7.0
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
