@@ -8,6 +8,7 @@ import logging
 import os
 
 from api.routes import router
+from api.advanced_routes import router as advanced_router
 from api.dependencies import get_memory_manager
 from core.metrics import registry, documents_ingested_total
 from core.config import LOG_LEVEL
@@ -87,6 +88,7 @@ async def generic_exception_handler(request: Request, exc: Exception):
 
 # Include the API router with a versioned prefix
 app.include_router(router)
+app.include_router(advanced_router)
 
 
 @app.get("/health", tags=["Health"])

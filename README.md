@@ -48,6 +48,9 @@ A production-ready **semantic memory** micro-service that transforms unstructure
 - **Rules & Reflection:**\
   Enforce hard constraints and log lessons after each run. See
   [docs/rules.md](docs/rules.md) and [docs/reflection.md](docs/reflection.md).
+- **Advanced AI/ML Awareness:**\
+  New modules for temporal modeling, topological analysis, multi-agent simulation,
+  multi-modal fusion, and personalization. See [docs/advanced_features.md](docs/advanced_features.md).
 
 
 ---
