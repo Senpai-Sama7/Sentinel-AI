@@ -1,229 +1,286 @@
-# Sentinel AI
+# 🚀 Sentinel AI: Next-Level Code Intelligence
 
-[![CI](https://github.com/Senpai-sama7/Sentinel-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/Senpai-sama7/Sentinel-AI/actions/workflows/ci.yml)
-[![Helm Chart](https://img.shields.io/badge/helm-chart-blue)](https://github.com/Senpai-sama7/Sentinel-AI/tree/main/helm)
-[![Docker](https://img.shields.io/docker/pulls/Senpai-sama7/sentinel-memory-service)](https://hub.docker.com/r/Senpai-sama7/sentinel-memory-service)
+<p align="center">
+  <img src="https://img.shields.io/github/license/Senpai-Sama7/Sentinel-AI?style=flat-square" alt="License"/>
+  <img src="https://img.shields.io/github/workflow/status/Senpai-Sama7/Sentinel-AI/CI?style=flat-square" alt="CI Status"/>
+  <img src="https://img.shields.io/badge/python-3.8%2B-blue?style=flat-square" alt="Python Version"/>
+  <img src="https://img.shields.io/badge/Docker-ready-0db7ed?logo=docker&logoColor=white&style=flat-square" alt="Docker Ready"/>
+  <img src="https://img.shields.io/badge/FastAPI-0.95+-green?style=flat-square" alt="FastAPI"/>
+  <img src="https://img.shields.io/badge/PRs-welcome-blueviolet?style=flat-square" alt="PRs Welcome"/>
+  <img src="https://img.shields.io/github/stars/Senpai-Sama7/Sentinel-AI?style=social" alt="GitHub Stars"/>
+</p>
 
-A production-ready **semantic memory** micro-service that transforms unstructured content into actionable, AI-driven insights. Designed for high-throughput ingestion, precise semantic indexing, and Retrieval-Augmented Generation (RAG), it delivers sub-millisecond search and contextual responses.
 
+**The Neural Architecture of Code Intelligence**
 
-## 🚀 Core Capabilities
+> *Transform your codebase from static documentation into a living, learning, and reasoning partner—ready to answer, adapt, and anticipate.*
 
-- **Multi-Format Ingestion:**\
-  Import PDF, DOCX, Markdown, plain text, source code, and OCR-processed images. Content is normalized into `ContentBlock` JSON models with metadata and deduplicated for efficiency.
-- **Embeddings & Vector Search:**\
-  Utilize Hugging Face or OpenAI embeddings and index in Chroma, Weaviate, or Milvus. Supports batch and incremental upserts with auto-sharding for scale.
-- **Multi-Tier Caching:**
-  - *L0 (In-Process LRU)* – Instant cache within each process.
-  - *L1 (Redis)* – Distributed layer for embedding & search results.
-  - *L2 (Vector Store)* – Persistent in-memory vectors.
-  - *L3 (Archive)* – Raw source backups on S3 or filesystem.\
-    Includes stampede protection to prevent cache storms.
-- **Retrieval-Augmented Generation (RAG):**\
-  Combine top-K relevant chunks with LLM prompts (OpenAI GPT-4, local Llama, others). Returns safe fallbacks when context is missing and optional streaming for chat UIs.
-- **Secure FastAPI Endpoints:**
-  - `POST /api/v1/memory/ingest`
-  - `POST /api/v1/memory/search`
-  - `POST /api/v1/memory/query`
-  - `GET /api/v1/memory/file/{id}`
-  - Health, metrics, and interactive docs at `/docs` and `/redoc`.
-- **Authentication & RBAC:**\
-  JWT with RSA/HMAC, role-based permissions (`reader`, `ingestor`, `admin`), token refresh, expiry, and audit logs.
-- **Containerized & Cloud-Native:**\
-  Docker Compose for local dev, Helm chart for Kubernetes. GitHub Actions drive CI/CD: Black, Ruff, mypy, pytest, codecov, Trivy, and chart linting.
-- **Observability:**\
-  Prometheus metrics (request rates, cache hits, RAG latency), OpenTelemetry traces (Jaeger/Tempo), and structured JSON logs (structlog) with trace IDs.
-- **Quality & Resilience:**\
-  100% pytest coverage, Locust load tests, chaos experiments. Self-auditing scripts ensure schema consistency and loop detection.
-- **Documentation & Runbooks:**\
-  C4 diagrams and Pydantic schemas, Postman collections, code snippets, and operational playbooks for incident response.
-- **Graph-Based Knowledge Modeling:**\
-  Weighted, directed graphs with node and edge attributes for representing assets. See [docs/knowledge_graph.md](docs/knowledge_graph.md).
-- **Attack Tree Logic:**\
-  Hierarchical preconditions and actions with cross-links to graph assets. See [docs/attack_tree.md](docs/attack_tree.md).
-- **Reasoning Engine:**\
-  Chain- and tree-of-thought parsing with branch tracking for auditability. See [docs/reasoning_engine.md](docs/reasoning_engine.md).
-- **Vector Memory:**\
-  Store reasoning chains and attack paths in Weaviate for later recall.
-- **Rules & Reflection:**\
-  Enforce hard constraints and log lessons after each run. See
-  [docs/rules.md](docs/rules.md) and [docs/reflection.md](docs/reflection.md).
-- **Advanced AI/ML Awareness:**\
-  New modules for temporal modeling, topological analysis, multi-agent simulation,
-  multi-modal fusion, and personalization. See [docs/advanced_features.md](docs/advanced_features.md).
-
+- [🚀 Introduction](#introduction)
+- [🧠 How Sentinel AI Works & Architecture](#how-sentinel-ai-works--architecture)
+- [🎯 What Can Sentinel AI Do?](#what-can-sentinel-ai-do)
+- [⚡ Quickstart](#quickstart)
+- [⚙️ Configuration](#configuration)
+- [🛠️ Usage Examples](#usage-examples)
+- [🔥 Real-World Use Cases](#real-world-use-cases)
+- [⚡ Performance & Scalability](#performance--scalability)
+- [📦 Deployment Options](#deployment-options)
+- [👀 Observability & Security](#observability--security)
+- [🧪 Testing](#testing)
+- [🧠 Test Philosophy](#test-philosophy)
+- [🤝 Contributing](#contributing)
+- [📅 Roadmap](#roadmap)
+- [🌐 Community & Support](#community--support)
+- [📝 License](#license)
 
 ---
 
-## 📖 Table of Contents
+## 🚀 Introduction
 
-1. [Quick Start](#quick-start)
-2. [Configuration](#configuration)
-3. [Usage Examples](#usage-examples)
-4. [Deployment](#deployment)
-   - [Docker Compose](#docker-compose)
-   - [Kubernetes (Helm)](#kubernetes-helm)
-5. [Real Use Cases](#real-use-cases)
-6. [Contributing & Governance](#contributing--governance)
-7. [Changelog & Roadmap](#changelog--roadmap)
-8. [License](#license)
+Sentinel AI is more than just a code search tool—it's a production-grade cognitive engine that *understands* the meaning, context, and history of your code and documentation. Picture transforming your codebase into a dynamic, queryable knowledge base that can answer your questions, adapt to changes, and even anticipate your next needs.
+
+Great software isn’t just code—it’s living knowledge. Sentinel AI connects the dots between your code, your documentation, and your team's decisions, helping you build, debug, and scale faster than ever before.
 
 ---
 
-## Quick Start
+## 🧠 How Sentinel AI Works & Architecture
 
-1. **Clone & Configure**
-   ```bash
-   git clone https://github.com/your-org/Sentinel-AI.git
-   cd Sentinel-AI
-   cp .env.example .env
-   # Edit .env to set JWT_SECRET, OPENAI_API_KEY, etc.
-   ```
-2. **Run Locally**
-   ```bash
-   docker compose up --build -d
-   # Visit http://localhost:8000/docs
-   ```
-3. **Stop & Clean**
+Sentinel AI runs on a multi-layer Cached Augmented Generation (CAG) architecture. Rather than re-processing every query from scratch, it uses intelligent layers of memory and context to provide instant, insightful answers.
+
+### Memory Layers
+
+- **L0: Neural Cache** – Ultra-fast in-memory cache for your most common queries (like muscle memory).
+- **L1: Distributed Memory** – Redis-powered team cache, so everyone benefits from shared knowledge.
+- **L2: Semantic Memory** – Vector databases (ChromaDB/Weaviate) and graph analytics for deep understanding and code-document mapping.
+- **L3: Source of Truth** – Your Git repo for complete historical context, allowing Sentinel to reason about why code has changed.
+
+### Core Components
+
+- **⚡ FastAPI:** High-performance API for all interactions.
+- **🔬 Rust AST Parser:** Lightning-fast code analysis for multiple languages.
+- **🖥️ Next.js Frontend:** Clean, modern UI for developers.
+- **🤖 Multi-Modal Engine:** Blends insights from code, docs, PDFs, and commit messages for full context.
+
+### Visual Overview
+
+```
+[Developer] <-> [Frontend UI (Next.js)] <-> [FastAPI Gateway]
+           |         |                        |
+        [Redis L1] [ChromaDB/Weaviate L2]   [Git L3]
+           |                                 |
+      [In-Process L0]               [Rust AST, Go Vector]
+```
+
+---
+
+## 🎯 What Can Sentinel AI Do?
+
+1. **Search code and documentation with natural language**
+
+   - "Find our primary authentication middleware."
+   - "Which documents describe our data retention policy?"
+   - "Show me all error handling in payment flows since Q1."
+
+2. **Understand code history and rationale**
+
+   - Track *why* code changed, not just what changed.
+   - Surface architectural rationale for changes.
+   - Identify patterns of technical debt over time.
+
+3. **Reveal hidden relationships and context across your codebase**
+
+   - Temporal modeling: Visualize how your codebase evolves.
+   - Topological analysis: Map hidden dependencies.
+   - Cross-modal fusion: Gain a holistic view across code, docs, and commits.
+   - Continuous learning: Sentinel adapts to your team’s patterns and vocabulary.
+
+4. **Analyze code deeply with advanced AST tools**
+
+   - Parse Python, JS/TS, Rust, Go, and more.
+   - Extract function signatures, find complex patterns, and map dependencies.
+   - Generate autonomous documentation and enable smarter code reviews.
+
+---
+
+## ⚡ Quickstart
+
+> **TL;DR:** Get up and running in minutes—just clone, configure, and launch.
+
+### Prerequisites
+
+- Docker & Docker Compose
+- OpenAI API key (for deep cognitive features)
+
+### 1. Clone the Repo
+
+```bash
+git clone https://github.com/Senpai-Sama7/Sentinel-AI.git
+cd Sentinel-AI
+```
+
+### 2. Configure Environment
+
+```bash
+cp .env.example .env
+# Add your OPENAI_API_KEY to .env
+```
+
+### 3. Launch Services
+
+```bash
+docker-compose up -d --build
+```
+
+### 4. Access Interfaces
+
+- **API Docs:** [http://localhost:8000/docs](http://localhost:8000/docs)
+- **Frontend:** [http://localhost:3000](http://localhost:3000)
+- **Health:** [http://localhost:8000/health](http://localhost:8000/health)
+
+> *For local dev: run FastAPI & Next.js separately. For production: see **`helm/`** for Kubernetes deployment.*
+
+---
+
+## ⚙️ Configuration
+
+Customize Sentinel AI by editing your `.env` file:
+
+| Variable         | Description                  | Default                                        | Required?   |
+| ---------------- | ---------------------------- | ---------------------------------------------- | ----------- |
+| OPENAI\_API\_KEY | OpenAI key for AI reasoning  | -                                              | Yes         |
+| REDIS\_URL       | L1 distributed cache address | redis\://localhost:6379/0                      | Recommended |
+| WEAVIATE\_URL    | Semantic memory (Weaviate)   | [http://localhost:8080](http://localhost:8080) | Optional    |
+| CHROMA\_PATH     | ChromaDB data directory      | ./chroma\_data                                 | Optional    |
+| GIT\_REPO\_PATH  | Local code repo path         | ./sample\_repo                                 | Yes         |
+| L0\_CACHE\_SIZE  | In-memory L0 cache size      | 10000                                          | Optional    |
+
+---
+
+## 🛠️ Usage Examples
+
+```bash
+curl -X GET "http://localhost:8000/search" \
+  -G \
+  -d "q=authentication middleware implementations" \
+  -d "context_aware=true" \
+  -d "include_temporal=true"
+```
+
+```bash
+curl -X POST "http://localhost:8000/analyze" \
+  -H "Content-Type: application/json" \
+  -d '{"repo_path": "./my-repo", "deep_analysis": true}'
+```
+
+```bash
+curl -X POST "http://localhost:8000/memory/cache" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "key": "security_audit_results",
+    "value": {"vulnerabilities": 3, "severity": "medium"},
+    "persist_to_l2": true,
+    "semantic_tags": ["security","auth"]
+}'
+```
+
+---
+
+## 🔥 Real-World Use Cases
+
+- **Security Audits:** “Are there any potential SQL injection vulnerabilities in the user authentication module?”
+- **Architecture Evolution:** “How has our error handling strategy evolved, and why?”
+- **Knowledge Synthesis:** “Summarize payment system interactions from code and design docs.”
+- **Automated Code Review:** “Review this pull request for code quality and performance.”
+
+---
+
+## ⚡ Performance & Scalability
+
+- Sub-millisecond responses for cached queries (L0/L1)
+- Under 100ms for complex semantic searches (L2)
+- Horizontally scalable: Kubernetes, Redis clustering, sharded vector databases
+
+---
+
+## 📦 Deployment Options
+
+- **Local Development:**
   ```bash
-  docker compose down -v
+  docker-compose up -d
   ```
-
-## Getting Started
-
-1. **Install Dependencies**
-   ```bash
-   pip install poetry
-   poetry install --with dev
-   ```
-2. **Run the Application**
-   ```bash
-   docker compose up --build -d
-   ```
-3. **Run the Test Suite**
-   ```bash
-   make test
-   ```
+- **Production (Kubernetes):** See the `helm/` directory for easy Helm deployments.
+- **Advanced Tuning:** See `helm/values.yaml` for scaling, monitoring, and security.
 
 ---
 
-## Configuration
+## 👀 Observability & Security
 
-| Env Variable        | Description                           | Default                    |
-| ------------------- | ------------------------------------- | -------------------------- |
-| `JWT_SECRET`        | JWT signing key                       | *REQUIRED*                 |
-| `OPENAI_API_KEY`    | OpenAI embeddings & LLM API key       | *REQUIRED*                 |
-| `REDIS_URL`         | Redis DSN                             | `redis://localhost:6379/0` |
-| `CHROMA_HOST`       | Chroma vector DB host                 | `localhost`                |
-| `CHROMA_PORT`       | Chroma vector DB port                 | `8000`                     |
-| `APP_CORS_ORIGINS`  | JSON array of allowed origins         | `[]`                       |
-| `LOG_LEVEL`         | Logging level (`DEBUG`, `INFO`, etc.) | `INFO`                     |
-| `CACHE_TTL`         | Redis entry TTL (seconds)             | `3600`                     |
-| `INGEST_BATCH_SIZE` | Docs per ingest batch                 | `8`                        |
-
-*Extensions for Helm values are in **`helm/values.yaml`**.*
+- **Prometheus Metrics:** `/metrics` endpoint for monitoring
+- **Health Checks:** `/health` endpoint
+- **Security:** API key authentication and rate limiting
 
 ---
 
-## Usage Examples
-
-### Ingest a File
+## 🧪 Testing
 
 ```bash
-curl -X POST http://localhost:8000/api/v1/memory/ingest \
-  -H "Authorization: Bearer $JWT" \
-  -F "file=@./docs/spec.pdf"
-```
+# Unit & Integration tests
+tests/run_tests.sh
 
-**Errors**: 400 (bad file), 401 (unauthorized), 500 (server error)
-
-### Semantic Search
-
-```bash
-curl -X POST http://localhost:8000/api/v1/memory/search \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $JWT" \
-  -d '{"query":"reset password","top_k":3}'
-```
-
-### RAG Query (Streaming)
-
-```bash
-curl -N -X POST http://localhost:8000/api/v1/memory/query \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $JWT" \
-  -d '{"query":"Explain auth flow","stream":true}'
-```
-
-### Knowledge Graph & Attack Paths
-
-```python
-from graphs.knowledge_graph import KnowledgeGraph
-
-net = KnowledgeGraph()
-net.add_asset("Server_A", os="Ubuntu", risk_score=5)
-net.add_asset("DB")
-net.add_connection("Server_A", "DB", type="sql", risk=8)
-
-print(net.paths("Server_A", "DB"))
+# Stress & Benchmark tests
+tests/benchmark.sh
 ```
 
 ---
 
-## Deployment
+## 🧠 Test Philosophy
 
-### Docker Compose
-
-- Local dev and test environment.
-- Services: `api`, `redis`, `chroma`.
-
-### Kubernetes (Helm)
-
-```bash
-helm repo add semmem https://your-org.github.io/Sentinel-AI/helm
-helm repo update
-helm upgrade --install semmem semmem/Sentinel-AI \
-  --set image.tag=$(git rev-parse --short HEAD) \
-  --set env.OPENAI_API_KEY=$OPENAI
-```
-
-Customize `helm/values.yaml` for resources, ingress, and CronJobs.
+- **Cognitive Load Testing:** Does the system make you *faster*?
+- **Semantic Validation:** Does AI reasoning match human intent?
+- **Security Audits:** Automated threat detection.
+- **Integration Intelligence:** Do components learn from each other?
 
 ---
 
-## Real Use Cases
+## 🤝 Contributing
 
-1. **Developer Productivity**\
-   Index code repos and docs, enable semantic code search, auto-generate snippets, and summarize architecture.
-2. **Enterprise Knowledge Base**\
-   Ingest policies, training, and FAQs; provide employees an AI assistant; automate audit queries.
-3. **Customer Support**\
-   Power chatbots with manuals and KB articles, update nightly for new content, ensure role-based responses.
-4. **Legal Research**\
-   Semantic retrieval of case law and briefs, generate attributed summaries, find related precedents.
+Every contribution makes Sentinel AI smarter! Fork the repo, set up your Python environment, run the tests, and open a PR. For full details, see `CONTRIBUTING.md`.
 
----
+**Ways to contribute:**
 
-## Contributing & Governance
-
-- **Contribute:** See [CONTRIBUTING.md](CONTRIBUTING.md)
-- **Code of Conduct:** See [CODE\_OF\_CONDUCT.md](CODE_OF_CONDUCT.md)
-- **Templates:** `.github/ISSUE_TEMPLATE/`, `.github/PULL_REQUEST_TEMPLATE.md`
-- **Branches:** Protected `main` & `release/*`, require 2 reviews and passing CI.
+- Add support for new programming languages
+- Expand semantic integrations
+- Improve UI/UX
+- Enhance AI reasoning
 
 ---
 
-## Changelog & Roadmap
+## 📅 Roadmap
 
-Review [CHANGELOG.md](CHANGELOG.md) for release history. Upcoming: multi-tenant support, hybrid keyword-vector search, enhanced streaming.
+- **Q3 2025:** Predictive technical debt analysis
+- **Q4 2025:** Automatic documentation generation
+- **2026+:** Multi-repo intelligence and self-improving analysis
 
 ---
 
-## Security Notice
+## 🌐 Community & Support
 
-Use this project **only** on systems you own or have explicit permission to test. Unauthorized usage is prohibited.
+- **Docs:** [`docs/`](docs/) — guides, architecture, API, tutorials
+- **Issues:** [GitHub Issues](https://github.com/Senpai-Sama7/Sentinel-AI/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/Senpai-Sama7/Sentinel-AI/discussions)
+- **Security:** [`SECURITY.md`](SECURITY.md)
 
-## License
+For support, open an Issue or join the Discussions tab. Connect with others and ask questions—everyone’s welcome!
 
-[MIT License](LICENSE)
+---
 
+## 📝 License
+
+MIT © 2024 Sentinel AI Contributors
+
+> *“The best way to predict the future is to invent it.”* – Alan Kay
+
+**Sentinel AI: Where Code Meets Consciousness — Code That Thinks With You**
+
+---
+
+*Want GIFs, diagrams, or a site-ready Markdown export? *[*Open a PR*](https://github.com/Senpai-Sama7/Sentinel-AI/pulls)* and join the cognitive revolution!*
