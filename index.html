@@ -4,16 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sentinel AI: An Interactive Experience</title>
-    <!-- 
-        MODIFICATION SUMMARY:
-        - Roadmap Fix: Populated the previously empty roadmap section with content based on the provided README files.
-        - New Feature: Added a new interactive "Visualize the Process" section.
-        - Animation: Created a one-click animation to illustrate the L0->L3 query process.
-        - CSS & JS: Added new styles and JavaScript to support the new section and its animations.
+    <!--  
+        MODIFICATION SUMMARY (V5 - SIMON SAYS GAME):
+        - Audio Disabled: All Tone.js sound effects have been turned off.
+        - Mini-Game Overhaul: Replaced the query simulation with an interactive "Simon Says" style memory game.
+        - New Game Logic: Players must repeat an ever-increasing sequence of flashing cache layers.
+        - UI Update: The game section UI has been updated with a "Start Game" button and new labels for "Level" and "Status".
     -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -28,11 +29,16 @@
             50% { text-shadow: 0 0 30px rgba(0, 229, 255, 0.8), 0 0 10px rgba(255, 0, 255, 0.8); opacity: 1; transform: scale(1); }
             100% { text-shadow: 0 0 5px rgba(255,255,255,0.2); opacity: 0.5; transform: scale(0.98); }
         }
+        @keyframes shimmer {
+            0% { background-position: -500% 0; }
+            100% { background-position: 500% 0; }
+        }
         body {
             font-family: 'Inter', sans-serif;
             color: #E0E7FF;
             overflow-x: hidden;
-            background: linear-gradient(60deg, #0f0c29, #302b63, #24243e, #0f0c29);
+            background-color: #0f0c29;
+            background-image: linear-gradient(60deg, #0f0c29, #302b63, #24243e, #0f0c29);
             background-size: 400% 400%;
             animation: digital-abyss-bg 25s ease infinite;
         }
@@ -55,6 +61,13 @@
             color: white;
             animation: text-power-up 3s ease-in-out infinite;
         }
+        @media (max-width: 640px) {
+            .loader-text {
+                font-size: 1.75rem;
+                text-align: center;
+                padding: 0 1rem;
+            }
+        }
         #bg-canvas {
             position: fixed;
             top: 0;
@@ -62,7 +75,6 @@
             width: 100vw;
             height: 100vh;
             z-index: -1;
-            cursor: pointer;
         }
         .glass-card {
             background: rgba(26, 30, 40, 0.4);
@@ -123,26 +135,20 @@
                 transform: scale(1.03);
             }
         }
-        /* New styles for process animator */
-        .process-node {
-            transition: all 0.5s ease-in-out;
-            border: 2px solid rgba(224, 231, 255, 0.2);
-        }
-        .process-node.active {
-            transform: scale(1.1);
-            border-color: #00E5FF;
-            box-shadow: 0 0 20px #00E5FF, 0 0 10px #ff00ff;
-        }
-        #query-packet {
+        #architecture-canvas {
             position: absolute;
-            width: 15px;
-            height: 15px;
-            background-color: #ff00ff;
-            border-radius: 50%;
-            box-shadow: 0 0 15px #ff00ff, 0 0 5px white;
-            transition: all 1s cubic-bezier(0.6, -0.28, 0.735, 0.045); /* easeInBack for a nice start */
-            opacity: 0;
-            z-index: 10;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        #mini-game-canvas {
+            background: rgba(0,0,0,0.2);
+            border-radius: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
         }
     </style>
 </head>
@@ -161,39 +167,40 @@
                  alt="Sentinel AI Logo" 
                  class="w-48 h-48 md:w-56 md:h-56 mb-8 animate-on-scroll logo-pulse"
                  onerror="this.style.display='none'">
-            <h1 class="text-4xl md:text-6xl font-black text-white mb-4 animate-on-scroll" style="transition-delay: 100ms;">Sentinel AI</h1>
-            <p class="text-xl md:text-2xl font-medium text-slate-300 animate-on-scroll" style="transition-delay: 250ms;">The Cognitive Engine for Your Code</p>
+            <h1 data-scramble class="text-4xl md:text-6xl font-black text-white mb-4 animate-on-scroll" style="transition-delay: 100ms;">Sentinel AI</h1>
+            <p data-scramble class="text-xl md:text-2xl font-medium text-slate-300 animate-on-scroll" style="transition-delay: 250ms;">The Cognitive Engine for Your Code</p>
             <p class="max-w-3xl mx-auto mt-6 text-lg text-slate-400 animate-on-scroll" style="transition-delay: 400ms;">
                 Sentinel AI transforms your codebase and documentation from static artifacts into a dynamic, reasoning partner. It's time to stop searching and start understanding.
             </p>
         </header>
 
-        <section id="architecture" class="my-16 md:my-24">
-            <h2 class="text-3xl font-bold text-center text-white mb-4 animate-on-scroll">The Architecture of Understanding</h2>
+        <section id="architecture" class="my-16 md:my-24 relative">
+             <canvas id="architecture-canvas"></canvas>
+            <h2 data-scramble class="text-3xl font-bold text-center text-white mb-4 animate-on-scroll">The Architecture of Understanding</h2>
             <p class="text-center max-w-2xl mx-auto text-slate-400 mb-12 animate-on-scroll" style="transition-delay: 150ms;">Sentinel AI operates on a sophisticated multi-layered memory system, ensuring every query is answered with optimal speed and context. This is the foundation of our Cached Augmented Generation (CAG) model.</p>
-            <div class="flex flex-col items-center">
-                <div class="text-center p-6 rounded-xl w-full max-w-lg mb-4 glass-card animate-on-scroll">
+            <div class="flex flex-col items-center relative z-20">
+                <div id="query-node" class="text-center p-6 rounded-xl w-full max-w-lg mb-4 glass-card animate-on-scroll">
                     <p class="text-xl font-bold text-white">Your Natural Language Query</p>
                     <p class="text-md text-slate-400 italic mt-1">"Show me all error handling in payment flows since Q1."</p>
                 </div>
                 <div class="text-4xl font-black text-[#00E5FF] my-4 animate-on-scroll" style="animation: text-power-up 4s infinite ease-in-out;">↓</div>
-                <div class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
-                    <div class="p-6 rounded-xl glass-card" style="transition-delay: 50ms;">
+                <div id="cache-grid" class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
+                    <div data-cache-node class="p-6 rounded-xl glass-card animate-on-scroll" style="transition-delay: 50ms;">
                         <p class="text-sm font-bold text-white bg-red-500 rounded-full inline-block px-3 py-1 mb-3">L0</p>
                         <h3 class="text-xl font-bold text-white">Neural Cache</h3>
                         <p class="text-slate-400 mt-2 text-sm">Instant, sub-millisecond responses from an in-memory cache. The system's muscle memory.</p>
                     </div>
-                    <div class="p-6 rounded-xl glass-card" style="transition-delay: 150ms;">
+                    <div data-cache-node class="p-6 rounded-xl glass-card animate-on-scroll" style="transition-delay: 150ms;">
                         <p class="text-sm font-bold text-white bg-green-500 rounded-full inline-block px-3 py-1 mb-3">L1</p>
                         <h3 class="text-xl font-bold text-white">Distributed Memory</h3>
                         <p class="text-slate-400 mt-2 text-sm">A Redis-backed cache creates a shared brain for the entire team, compounding knowledge.</p>
                     </div>
-                    <div class="p-6 rounded-xl glass-card" style="transition-delay: 250ms;">
+                    <div data-cache-node class="p-6 rounded-xl glass-card animate-on-scroll" style="transition-delay: 250ms;">
                         <p class="text-sm font-bold text-white bg-blue-500 rounded-full inline-block px-3 py-1 mb-3">L2</p>
                         <h3 class="text-xl font-bold text-white">Semantic Memory</h3>
                         <p class="text-slate-400 mt-2 text-sm">Vector databases map complex relationships for deep, context-aware understanding.</p>
                     </div>
-                    <div class="p-6 rounded-xl glass-card" style="transition-delay: 350ms;">
+                    <div data-cache-node class="p-6 rounded-xl glass-card animate-on-scroll" style="transition-delay: 350ms;">
                         <p class="text-sm font-bold text-white bg-purple-500 rounded-full inline-block px-3 py-1 mb-3">L3</p>
                         <h3 class="text-xl font-bold text-white">Source of Truth</h3>
                         <p class="text-slate-400 mt-2 text-sm">Git-backed store provides perfect historical context for time-aware reasoning.</p>
@@ -205,38 +212,38 @@
         <section id="cag" class="my-16 md:my-24 p-8 rounded-2xl glass-card animate-on-scroll">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
                 <div class="lg:pr-8">
-                    <h2 class="text-3xl font-bold text-white mb-4">The CAG Economic Advantage</h2>
+                    <h2 data-scramble class="text-3xl font-bold text-white mb-4">The CAG Economic Advantage</h2>
                     <p class="text-slate-400 mb-6">
                         Cached Augmented Generation isn't just about speed; it's about efficiency. By intelligently caching responses, Sentinel AI dramatically reduces costly LLM calls and computational overhead. This chart shows a typical query distribution, where the vast majority of requests are served instantly from low-cost caches.
                     </p>
                      <ul class="space-y-3 text-slate-300 font-medium">
-                        <li class="flex items-center"><span class="w-3 h-3 rounded-full bg-green-500 mr-3"></span>75% of queries resolved by L0/L1 Cache</li>
-                        <li class="flex items-center"><span class="w-3 h-3 rounded-full bg-blue-500 mr-3"></span>20% answered by L2 Semantic Search</li>
-                        <li class="flex items-center"><span class="w-3 h-3 rounded-full bg-purple-500 mr-3"></span>5% require full L3 Git analysis</li>
-                    </ul>
+                         <li class="flex items-center"><span class="w-3 h-3 rounded-full bg-green-500 mr-3"></span>75% of queries resolved by L0/L1 Cache</li>
+                         <li class="flex items-center"><span class="w-3 h-3 rounded-full bg-blue-500 mr-3"></span>20% answered by L2 Semantic Search</li>
+                         <li class="flex items-center"><span class="w-3 h-3 rounded-full bg-purple-500 mr-3"></span>5% require full L3 Git analysis</li>
+                     </ul>
                 </div>
                  <div class="relative mx-auto h-[300px] md:h-[350px] w-full max-w-[450px]">
-                    <canvas id="cagChart"></canvas>
-                </div>
+                     <canvas id="cagChart"></canvas>
+                 </div>
             </div>
         </section>
 
         <section id="capabilities" class="my-16 md:my-24">
-            <h2 class="text-3xl font-bold text-center text-white mb-12 animate-on-scroll">Core Capabilities</h2>
+            <h2 data-scramble class="text-3xl font-bold text-center text-white mb-12 animate-on-scroll">Core Capabilities</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="p-6 rounded-xl glass-card" style="transition-delay: 50ms;">
+                <div class="p-6 rounded-xl glass-card animate-on-scroll" style="transition-delay: 50ms;">
                     <h3 class="text-xl font-bold text-white mb-2">💬 Conversational Search</h3>
                     <p class="text-slate-400">Stop guessing keywords. Ask complex questions about your code and documentation in plain English and get precise, relevant answers.</p>
                 </div>
-                <div class="p-6 rounded-xl glass-card" style="transition-delay: 150ms;">
+                <div class="p-6 rounded-xl glass-card animate-on-scroll" style="transition-delay: 150ms;">
                     <h3 class="text-xl font-bold text-white mb-2">⏳ Time-Aware Intelligence</h3>
                     <p class="text-slate-400">Understand the "why" behind code changes. Sentinel AI analyzes your Git history to surface the rationale behind architectural decisions and track technical debt.</p>
                 </div>
-                <div class="p-6 rounded-xl glass-card" style="transition-delay: 250ms;">
+                <div class="p-6 rounded-xl glass-card animate-on-scroll" style="transition-delay: 250ms;">
                     <h3 class="text-xl font-bold text-white mb-2">🤖 Multi-Agent Reasoning</h3>
                     <p class="text-slate-400">Specialized AI agents work together to analyze code topology, evolution, and context, providing insights that a single model would miss.</p>
                 </div>
-                 <div class="p-6 rounded-xl glass-card" style="transition-delay: 350ms;">
+                 <div class="p-6 rounded-xl glass-card animate-on-scroll" style="transition-delay: 350ms;">
                     <h3 class="text-xl font-bold text-white mb-2">🔬 Advanced AST Analysis</h3>
                     <p class="text-slate-400">The high-speed Rust parser builds Abstract Syntax Trees to map hidden dependencies and complex patterns across multiple languages.</p>
                 </div>
@@ -244,7 +251,7 @@
         </section>
 
         <section id="performance" class="my-16 md:my-24">
-            <h2 class="text-3xl font-bold text-center text-white mb-12 animate-on-scroll">Under the Hood: Parsing Performance</h2>
+            <h2 data-scramble class="text-3xl font-bold text-center text-white mb-12 animate-on-scroll">Under the Hood: Parsing Performance</h2>
             <div class="p-6 rounded-xl glass-card animate-on-scroll">
                 <p class="text-center max-w-2xl mx-auto text-slate-400 mb-6">The performance of the Rust-based AST parser is critical for rapid analysis. It efficiently processes various languages, enabling deep code intelligence at scale.</p>
                 <div class="relative mx-auto h-[400px] w-full max-w-[800px]">
@@ -254,91 +261,71 @@
         </section>
         
         <section id="roadmap" class="my-16 md:my-24">
-            <h2 class="text-3xl font-bold text-center text-white mb-12 animate-on-scroll">The Future Roadmap</h2>
+            <h2 data-scramble class="text-3xl font-bold text-center text-white mb-12 animate-on-scroll">The Future Roadmap</h2>
             <div class="relative max-w-2xl mx-auto">
                 <div class="border-l-4 border-[#00E5FF] absolute h-full top-0 left-4 md:left-1/2 -ml-px" style="filter: drop-shadow(0 0 5px #00E5FF);"></div>
-                <!-- ROADMAP CONTENT INSERTED HERE -->
                 <div class="space-y-12">
-                    <div class="relative glass-card animate-on-scroll" style="transition-delay: 50ms;">
-                        <div class="ml-12 md:ml-0 md:flex items-center md:justify-end">
-                            <div class="md:w-1/2 md:pr-8 text-right">
-                                <p class="text-xl font-bold text-white">Q3 2025</p>
-                            </div>
-                             <div class="md:w-1/2 md:pl-8">
-                                <div class="p-6 rounded-xl">
-                                    <p class="font-bold text-lg text-white">Predictive Technical Debt</p>
-                                    <p class="text-slate-400 text-sm mt-1">Proactively identify and model tech debt accumulation patterns.</p>
+                    <div class="relative">
+                        <div class="absolute w-5 h-5 bg-gray-900 rounded-full mt-1.5 left-4 -translate-x-1/2 border-4 border-cyan-400 md:left-1/2" style="filter: drop-shadow(0 0 5px #00E5FF);"></div>
+                        <div class="pl-10 md:grid md:grid-cols-2 md:gap-x-12 md:pl-0">
+                            <div class="md:col-start-2">
+                                <div class="p-6 rounded-xl glass-card animate-on-scroll">
+                                    <p class="text-sm font-bold text-cyan-400">Q4 2024</p>
+                                    <h3 class="text-xl font-bold text-white mt-1">Public Beta Launch</h3>
+                                    <p class="text-slate-400 mt-2">Initial release with support for Python, JS/TS, and Go. Focus on core conversational search and L0/L1 caching.</p>
                                 </div>
                             </div>
                         </div>
-                        <div class="absolute top-1/2 -mt-3 w-6 h-6 rounded-full bg-[#00E5FF] shadow left-4 -ml-3 md:left-1/2"></div>
                     </div>
-                     <div class="relative glass-card animate-on-scroll" style="transition-delay: 150ms;">
-                        <div class="ml-12 md:ml-0 md:flex items-center">
-                            <div class="md:w-1/2 md:text-right md:pr-8">
-                                <div class="p-6 rounded-xl">
-                                    <p class="font-bold text-lg text-white">Autonomous Documentation</p>
-                                    <p class="text-slate-400 text-sm mt-1">Generate accurate, context-aware documentation automatically from your codebase.</p>
+                    <div class="relative">
+                        <div class="absolute w-5 h-5 bg-gray-900 rounded-full mt-1.5 left-4 -translate-x-1/2 border-4 border-cyan-400 md:left-1/2" style="filter: drop-shadow(0 0 5px #00E5FF);"></div>
+                        <div class="pl-10 md:grid md:grid-cols-2 md:gap-x-12 md:pl-0">
+                            <div class="md:col-start-1 md:row-start-1 md:text-right">
+                                 <div class="p-6 rounded-xl glass-card animate-on-scroll" style="transition-delay: 150ms;">
+                                    <p class="text-sm font-bold text-cyan-400">Q1 2025</p>
+                                    <h3 class="text-xl font-bold text-white mt-1">Enterprise Tooling</h3>
+                                    <p class="text-slate-400 mt-2">Deeper IDE integration (VS Code, JetBrains), advanced AST analysis, and initial multi-agent reasoning capabilities.</p>
                                 </div>
                             </div>
-                            <div class="md:w-1/2 md:pl-8">
-                                 <p class="text-xl font-bold text-white">Q4 2025</p>
-                            </div>
                         </div>
-                        <div class="absolute top-1/2 -mt-3 w-6 h-6 rounded-full bg-[#00E5FF] shadow left-4 -ml-3 md:left-1/2"></div>
                     </div>
-                     <div class="relative glass-card animate-on-scroll" style="transition-delay: 250ms;">
-                         <div class="ml-12 md:ml-0 md:flex items-center md:justify-end">
-                            <div class="md:w-1/2 md:pr-8 text-right">
-                                <p class="text-xl font-bold text-white">2026+</p>
-                            </div>
-                             <div class="md:w-1/2 md:pl-8">
-                                <div class="p-6 rounded-xl">
-                                    <p class="font-bold text-lg text-white">Multi-Repository Intelligence</p>
-                                    <p class="text-slate-400 text-sm mt-1">Synthesize knowledge and dependencies across your entire microservice ecosystem.</p>
+                    <div class="relative">
+                        <div class="absolute w-5 h-5 bg-gray-900 rounded-full mt-1.5 left-4 -translate-x-1/2 border-4 border-cyan-400 md:left-1/2" style="filter: drop-shadow(0 0 5px #00E5FF);"></div>
+                        <div class="pl-10 md:grid md:grid-cols-2 md:gap-x-12 md:pl-0">
+                            <div class="md:col-start-2">
+                                <div class="p-6 rounded-xl glass-card animate-on-scroll" style="transition-delay: 300ms;">
+                                    <p class="text-sm font-bold text-cyan-400">Q2 2025</p>
+                                    <h3 class="text-xl font-bold text-white mt-1">Self-Hosting & Advanced Security</h3>
+                                    <p class="text-slate-400 mt-2">Offer self-hosting options for enterprises with strict data privacy requirements. Introduce advanced security and code vulnerability scanning agents.</p>
                                 </div>
                             </div>
                         </div>
-                        <div class="absolute top-1/2 -mt-3 w-6 h-6 rounded-full bg-[#00E5FF] shadow left-4 -ml-3 md:left-1/2"></div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- NEW PROCESS ANIMATION SECTION -->
-        <section id="process-animator" class="my-16 md:my-24">
-            <h2 class="text-3xl font-bold text-center text-white mb-4 animate-on-scroll">Visualize the Process</h2>
-            <p class="text-center max-w-2xl mx-auto text-slate-400 mb-8 animate-on-scroll" style="transition-delay: 150ms;">Click the button to see how Sentinel AI processes a query through its cognitive layers in real-time.</p>
-            <div class="p-8 rounded-2xl glass-card animate-on-scroll text-center">
-                <button id="animate-process-btn" class="mb-8 text-white font-bold py-3 px-8 rounded-lg shadow-lg cta-button">
-                    Initiate Query
+        <!-- Mini-Game Section -->
+        <section id="mini-game" class="my-16 md:my-24 p-8 rounded-2xl glass-card animate-on-scroll">
+            <h2 data-scramble class="text-3xl font-bold text-center text-white mb-4">Cache Challenge</h2>
+            <p class="text-center max-w-2xl mx-auto text-slate-400 mb-8">Test your memory. Watch the sequence of cache layers light up, then repeat the pattern by clicking them in the correct order.</p>
+            <div class="bg-black/20 p-4 rounded-lg">
+                <canvas id="mini-game-canvas" width="800" height="250"></canvas>
+            </div>
+            <div class="mt-6 flex flex-col sm:flex-row items-center justify-center gap-6">
+                <button id="start-game-btn" class="text-white font-bold py-3 px-8 rounded-lg shadow-lg cta-button">
+                    Start Game
                 </button>
-                <div id="animation-container" class="relative h-64 md:h-48 flex flex-col md:flex-row justify-around items-center">
-                    <div id="query-packet"></div>
-                    <div id="node-start" class="process-node p-3 rounded-lg w-32">
-                        <p class="font-bold">User Query</p>
-                    </div>
-                    <div class="text-2xl text-slate-500 mx-2 hidden md:block">→</div>
-                    <div id="node-l0" class="process-node p-3 rounded-lg w-32 mt-4 md:mt-0">
-                        <p class="font-bold text-red-400">L0 Cache</p>
-                    </div>
-                    <div class="text-2xl text-slate-500 mx-2 hidden md:block">→</div>
-                    <div id="node-l1" class="process-node p-3 rounded-lg w-32 mt-4 md:mt-0">
-                        <p class="font-bold text-green-400">L1 Cache</p>
-                    </div>
-                    <div class="text-2xl text-slate-500 mx-2 hidden md:block">→</div>
-                    <div id="node-l2" class="process-node p-3 rounded-lg w-32 mt-4 md:mt-0">
-                        <p class="font-bold text-blue-400">L2 Semantic</p>
-                    </div>
-                    <div class="text-2xl text-slate-500 mx-2 hidden md:block">→</div>
-                    <div id="node-l3" class="process-node p-3 rounded-lg w-32 mt-4 md:mt-0">
-                        <p class="font-bold text-purple-400">L3 Source</p>
-                    </div>
+                <div class="text-center">
+                    <p class="text-slate-400 text-sm">Level</p>
+                    <p id="level-display" class="text-3xl font-bold text-white">0</p>
                 </div>
-                <p id="animation-status" class="mt-8 text-lg text-cyan-300 h-6"></p>
+                 <div class="text-center">
+                    <p class="text-slate-400 text-sm">Status</p>
+                    <p id="status-display" class="text-xl font-bold text-cyan-300">-</p>
+                </div>
             </div>
         </section>
-
 
         <footer class="text-center border-t border-gray-700 pt-12 mt-16">
             <p class="font-bold text-2xl text-white animate-on-scroll">Ready to think with your code?</p>
@@ -358,275 +345,276 @@
                 setTimeout(() => {
                     loadingScreen.style.display = 'none';
                 }, 1500);
-            }, 3000);
+            }, 2000);
 
-            // --- Enhanced Three.js Scene ---
-            let scene, camera, renderer, particles, lines, mouse, raycaster;
-            let targetCameraZ = 5;
-            const mousePos = new THREE.Vector2();
+            // --- Sound Engine (Disabled) ---
+            let soundEnabled = false; // Sounds are globally disabled
+            const playHoverSound = () => {};
+            const playClickSound = () => {};
 
-            function init() {
+            // --- Digital Rain Three.js Scene ---
+            let scene, camera, renderer, rain;
+            function initDigitalRain() {
                 scene = new THREE.Scene();
                 camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-                camera.position.z = targetCameraZ;
+                camera.position.z = 5;
                 renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg-canvas'), alpha: true });
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-                
-                raycaster = new THREE.Raycaster();
-                mouse = new THREE.Vector2();
-
-                const particlesCount = 400;
-                const positions = new Float32Array(particlesCount * 3);
-                const velocities = new Float32Array(particlesCount * 3);
-
-                for (let i = 0; i < particlesCount; i++) {
-                    positions[i * 3] = (Math.random() - 0.5) * 20;
-                    positions[i * 3 + 1] = (Math.random() - 0.5) * 20;
-                    positions[i * 3 + 2] = (Math.random() - 0.5) * 20;
-                    velocities[i * 3] = (Math.random() - 0.5) * 0.001;
-                    velocities[i * 3 + 1] = (Math.random() - 0.5) * 0.001;
-                    velocities[i * 3 + 2] = (Math.random() - 0.5) * 0.001;
+                const rainCount = 5000, positions = new Float32Array(rainCount * 3), velocities = new Float32Array(rainCount * 3), colors = new Float32Array(rainCount * 3);
+                for (let i = 0; i < rainCount; i++) {
+                    positions[i * 3] = (Math.random() - 0.5) * 15;
+                    positions[i * 3 + 1] = (Math.random() - 0.5) * 15;
+                    positions[i * 3 + 2] = (Math.random() - 0.5) * 15;
+                    velocities[i * 3 + 1] = -0.05 - Math.random() * 0.05;
+                    const isBright = Math.random() > 0.95;
+                    colors[i*3] = isBright ? 0.8 : 0.0; colors[i*3+1] = isBright ? 1.0 : 0.5; colors[i*3+2] = isBright ? 1.0 : 0.6;
                 }
-                const particlesGeometry = new THREE.BufferGeometry();
-                particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-                particlesGeometry.setAttribute('velocity', new THREE.BufferAttribute(velocities, 3));
-                
-                const particlesMaterial = new THREE.PointsMaterial({
-                    color: 0xff00ff,
-                    size: 0.04,
-                    transparent: true,
-                    opacity: 0.8,
-                    sizeAttenuation: true,
-                    blending: THREE.AdditiveBlending
-                });
-                particles = new THREE.Points(particlesGeometry, particlesMaterial);
-                scene.add(particles);
-
-                const linesMaterial = new THREE.LineBasicMaterial({
-                    color: 0x00E5FF,
-                    transparent: true,
-                    opacity: 0.08,
-                    blending: THREE.AdditiveBlending
-                });
-                const linesGeometry = new THREE.BufferGeometry();
-                lines = new THREE.LineSegments(linesGeometry, linesMaterial);
-                scene.add(lines);
-
+                const geometry = new THREE.BufferGeometry();
+                geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                geometry.setAttribute('velocity', new THREE.BufferAttribute(velocities, 3));
+                geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+                const material = new THREE.PointsMaterial({ size: 0.02, vertexColors: true, blending: THREE.AdditiveBlending, transparent: true, opacity: 0.9 });
+                rain = new THREE.Points(geometry, material);
+                scene.add(rain);
                 window.addEventListener('resize', onWindowResize, false);
-                document.addEventListener('mousemove', onMouseMove, false);
-                window.addEventListener('scroll', onScroll, false);
-                renderer.domElement.addEventListener('click', onClick, false);
+                animateRain();
             }
-
             function onWindowResize() {
                 camera.aspect = window.innerWidth / window.innerHeight;
                 camera.updateProjectionMatrix();
                 renderer.setSize(window.innerWidth, window.innerHeight);
             }
-
-            function onMouseMove(event) {
-                mousePos.x = (event.clientX / window.innerWidth) * 2 - 1;
-                mousePos.y = -(event.clientY / window.innerHeight) * 2 + 1;
-                mouse.x = event.clientX;
-                mouse.y = event.clientY;
-            }
-
-            function onScroll() {
-                const scrollY = window.scrollY;
-                targetCameraZ = 5 - scrollY * 0.005;
-            }
-            
-            function onClick(event) {
-                const clickMouse = new THREE.Vector2();
-                clickMouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-                clickMouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-                
-                raycaster.setFromCamera(clickMouse, camera);
-                const intersects = raycaster.intersectObject(particles);
-
-                if (intersects.length > 0) {
-                     const velocities = particles.geometry.attributes.velocity.array;
-                     const positions = particles.geometry.attributes.position.array;
-                     const intersectPoint = intersects[0].point;
-
-                     for(let i = 0; i < particles.geometry.attributes.position.count; i++) {
-                         const p = new THREE.Vector3(positions[i*3], positions[i*3+1], positions[i*3+2]);
-                         const dist = p.distanceTo(intersectPoint);
-                         if (dist < 3) {
-                             const force = (3 - dist) * 0.01;
-                             velocities[i*3] += (p.x - intersectPoint.x) * force;
-                             velocities[i*3+1] += (p.y - intersectPoint.y) * force;
-                             velocities[i*3+2] += (p.z - intersectPoint.z) * force;
-                         }
-                     }
-                     particles.geometry.attributes.velocity.needsUpdate = true;
+            function animateRain() {
+                requestAnimationFrame(animateRain);
+                const positions = rain.geometry.attributes.position.array, velocities = rain.geometry.attributes.velocity.array;
+                for (let i = 0; i < positions.length / 3; i++) {
+                    positions[i * 3 + 1] += velocities[i * 3 + 1];
+                    if (positions[i * 3 + 1] < -7.5) positions[i * 3 + 1] = 7.5;
                 }
-            }
-
-            function animate() {
-                requestAnimationFrame(animate);
-                const positions = particles.geometry.attributes.position.array;
-                const velocities = particles.geometry.attributes.velocity.array;
-                const linePositions = [];
-                const particleCount = particles.geometry.attributes.position.count;
-                for(let i = 0; i < particleCount * 3; i++) {
-                    positions[i] += velocities[i];
-                    velocities[i] *= 0.98;
-                    if (positions[i] > 10 || positions[i] < -10) {
-                        velocities[i] = -velocities[i];
-                    }
-                }
-                particles.geometry.attributes.position.needsUpdate = true;
-                for (let i = 0; i < particleCount; i++) {
-                    for (let j = i + 1; j < particleCount; j++) {
-                        const p1 = new THREE.Vector3(positions[i*3], positions[i*3+1], positions[i*3+2]);
-                        const p2 = new THREE.Vector3(positions[j*3], positions[j*3+1], positions[j*3+2]);
-                        const distance = p1.distanceTo(p2);
-                        if (distance < 1.8) {
-                            linePositions.push(p1.x, p1.y, p1.z);
-                            linePositions.push(p2.x, p2.y, p2.z);
-                        }
-                    }
-                }
-                lines.geometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
-                lines.geometry.attributes.position.needsUpdate = true;
-                camera.position.x += (mousePos.x * 1.5 - camera.position.x) * 0.03;
-                camera.position.y += (-mousePos.y * 1.5 - camera.position.y) * 0.03;
-                camera.position.z += (targetCameraZ - camera.position.z) * 0.05;
-                camera.lookAt(scene.position);
+                rain.geometry.attributes.position.needsUpdate = true;
+                rain.rotation.y += 0.0005;
                 renderer.render(scene, camera);
             }
-            
-            init();
-            animate();
+            initDigitalRain();
 
+            // --- Interactive Elements ---
+            document.querySelectorAll('.glass-card, .cta-button').forEach(el => {
+                el.addEventListener('mouseenter', playHoverSound);
+                el.addEventListener('click', playClickSound);
+            });
+
+            // --- Scroll Animation Observer ---
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         entry.target.classList.add('is-visible');
+                        if(entry.target.hasAttribute('data-scramble')) scrambleText(entry.target);
+                        observer.unobserve(entry.target);
                     }
                 });
-            }, { threshold: 0.15 });
+            }, { threshold: 0.2 });
+            document.querySelectorAll('.animate-on-scroll, .glass-card').forEach(el => observer.observe(el));
 
-            document.querySelectorAll('.animate-on-scroll, .glass-card').forEach(el => {
-                observer.observe(el);
-            });
-
-            // --- Process Animator Logic ---
-            const animateBtn = document.getElementById('animate-process-btn');
-            const packet = document.getElementById('query-packet');
-            const statusText = document.getElementById('animation-status');
-            const nodes = {
-                start: document.getElementById('node-start'),
-                l0: document.getElementById('node-l0'),
-                l1: document.getElementById('node-l1'),
-                l2: document.getElementById('node-l2'),
-                l3: document.getElementById('node-l3'),
+            // --- Text Scramble Effect ---
+            const chars = '!<>-_\\/[]{}—=+*^?#________';
+            const scrambleText = (element) => {
+                const originalText = element.textContent; let frame = 0;
+                const animate = () => {
+                    frame++; let scrambledText = '';
+                    for (let i = 0; i < originalText.length; i++) {
+                        const progress = frame / (i + 1);
+                        if (progress < 1 || Math.random() < 0.1) {
+                            const randomChar = chars[Math.floor(Math.random() * chars.length)];
+                            scrambledText += (originalText[i] === ' ') ? ' ' : randomChar;
+                        } else scrambledText += originalText[i];
+                    }
+                    element.textContent = scrambledText;
+                    if (scrambledText !== originalText) requestAnimationFrame(animate);
+                };
+                animate();
             };
 
-            let isAnimating = false;
-
-            animateBtn.addEventListener('click', () => {
-                if (isAnimating) return;
-                isAnimating = true;
-                animateBtn.disabled = true;
-                animateBtn.style.opacity = '0.5';
-
-                Object.values(nodes).forEach(node => node.classList.remove('active'));
-                
-                const getPosition = (element) => {
-                    const rect = element.getBoundingClientRect();
-                    const containerRect = document.getElementById('animation-container').getBoundingClientRect();
-                    return {
-                        x: rect.left - containerRect.left + (rect.width / 2) - (packet.offsetWidth / 2),
-                        y: rect.top - containerRect.top + (rect.height / 2) - (packet.offsetHeight / 2),
-                    };
+            // --- Architecture Canvas Lines ---
+            const archCanvas = document.getElementById('architecture-canvas'), archCtx = archCanvas.getContext('2d');
+            const queryNode = document.getElementById('query-node'), cacheNodes = document.querySelectorAll('[data-cache-node]');
+            let activeLine = null;
+            function resizeArchCanvas() {
+                const rect = archCanvas.parentElement.getBoundingClientRect();
+                archCanvas.width = rect.width; archCanvas.height = rect.height;
+            }
+            window.addEventListener('resize', resizeArchCanvas);
+            resizeArchCanvas();
+            function drawLine(startEl, endEl) {
+                const startRect = startEl.getBoundingClientRect(), endRect = endEl.getBoundingClientRect(), canvasRect = archCanvas.getBoundingClientRect();
+                const startX = startRect.left + startRect.width / 2 - canvasRect.left, startY = startRect.top + startRect.height / 2 - canvasRect.top;
+                const endX = endRect.left + endRect.width / 2 - canvasRect.left, endY = endRect.top + endRect.height / 2 - canvasRect.top;
+                let progress = 0;
+                const animate = () => {
+                    archCtx.clearRect(0, 0, archCanvas.width, archCanvas.height);
+                    progress = Math.min(1, progress + 0.05);
+                    const currentX = startX + (endX - startX) * progress, currentY = startY + (endY - startY) * progress;
+                    archCtx.beginPath(); archCtx.moveTo(startX, startY); archCtx.lineTo(currentX, currentY);
+                    archCtx.strokeStyle = 'rgba(0, 229, 255, 0.8)'; archCtx.lineWidth = 2;
+                    archCtx.shadowColor = 'rgba(0, 229, 255, 1)'; archCtx.shadowBlur = 10;
+                    archCtx.stroke();
+                    if (progress < 1) activeLine = requestAnimationFrame(animate);
                 };
+                cancelAnimationFrame(activeLine); animate();
+            }
+            cacheNodes.forEach(node => {
+                node.addEventListener('mouseenter', () => drawLine(node, queryNode));
+                node.addEventListener('mouseleave', () => { cancelAnimationFrame(activeLine); archCtx.clearRect(0, 0, archCanvas.width, archCanvas.height); });
+            });
 
-                const startPos = getPosition(nodes.start);
-                packet.style.transform = `translate(${startPos.x}px, ${startPos.y}px)`;
-                packet.style.opacity = '1';
-                packet.style.transition = 'all 1s cubic-bezier(0.36, 0, 0.66, -0.56)'; // easeInBack
-                
-                const steps = [
-                    { node: 'l0', text: 'Checking L0 Neural Cache...' },
-                    { node: 'l1', text: 'Checking L1 Distributed Memory...' },
-                    { node: 'l2', text: 'Consulting L2 Semantic Memory...' },
-                    { node: 'l3', text: 'Analyzing L3 Source of Truth...' },
-                    { node: 'start', text: 'Response synthesized!' }
-                ];
+            // --- Mini-Game Logic (Simon Says) ---
+            const gameCanvas = document.getElementById('mini-game-canvas');
+            const gameCtx = gameCanvas.getContext('2d');
+            const startGameBtn = document.getElementById('start-game-btn');
+            const levelDisplay = document.getElementById('level-display');
+            const statusDisplay = document.getElementById('status-display');
 
-                let currentStep = 0;
-                function runStep() {
-                    if (currentStep >= steps.length) {
-                        setTimeout(() => {
-                            packet.style.opacity = '0';
-                            statusText.textContent = 'Ready for new query.';
-                            isAnimating = false;
-                            animateBtn.disabled = false;
-                            animateBtn.style.opacity = '1';
-                        }, 1000);
+            let level = 0;
+            let sequence = [];
+            let playerSequence = [];
+            let gamePhase = 'idle'; // idle, showing, playing, gameover
+            let activeCache = -1;
+
+            const gameCaches = [
+                { name: 'L0', color: '#ef4444', lightColor: '#f87171' },
+                { name: 'L1', color: '#22c55e', lightColor: '#4ade80' },
+                { name: 'L2', color: '#3b82f6', lightColor: '#60a5fa' },
+                { name: 'L3', color: '#a855f7', lightColor: '#c084fc' }
+            ];
+
+            function resizeGameCanvas() {
+                const rect = gameCanvas.parentElement.getBoundingClientRect();
+                gameCanvas.width = rect.width;
+                gameCanvas.height = rect.width > 600 ? 250 : rect.width * 0.4;
+                drawGame();
+            }
+
+            function drawGame() {
+                gameCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+                const cacheCount = gameCaches.length;
+                const totalWidth = gameCanvas.width * 0.8;
+                const gap = totalWidth / (cacheCount * 2);
+                const cacheWidth = gap;
+                const startX = (gameCanvas.width - totalWidth) / 2;
+
+                gameCaches.forEach((cache, i) => {
+                    const cacheX = startX + i * (cacheWidth + gap);
+                    const cacheY = gameCanvas.height / 2 - 40;
+                    const cacheHeight = 80;
+                    
+                    cache.x = cacheX; cache.y = cacheY; cache.w = cacheWidth; cache.h = cacheHeight;
+
+                    gameCtx.fillStyle = (activeCache === i) ? cache.lightColor : cache.color;
+                    gameCtx.strokeStyle = cache.lightColor;
+                    gameCtx.lineWidth = 2;
+                    gameCtx.shadowBlur = (activeCache === i) ? 20 : 0;
+                    gameCtx.shadowColor = cache.lightColor;
+                    
+                    gameCtx.beginPath();
+                    gameCtx.roundRect(cache.x, cache.y, cache.w, cache.h, [10]);
+                    gameCtx.fill();
+                    gameCtx.stroke();
+
+                    gameCtx.fillStyle = 'white';
+                    gameCtx.font = 'bold 20px Inter';
+                    gameCtx.textAlign = 'center';
+                    gameCtx.textBaseline = 'middle';
+                    gameCtx.shadowBlur = 0;
+                    gameCtx.fillText(cache.name, cache.x + cache.w / 2, cache.y + cache.h / 2);
+                });
+            }
+            
+            async function showSequence() {
+                gamePhase = 'showing';
+                statusDisplay.textContent = 'Watch...';
+                startGameBtn.disabled = true;
+                startGameBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+                for (const index of sequence) {
+                    await new Promise(res => setTimeout(res, 200));
+                    activeCache = index;
+                    drawGame();
+                    await new Promise(res => setTimeout(res, 500));
+                    activeCache = -1;
+                    drawGame();
+                }
+                gamePhase = 'playing';
+                statusDisplay.textContent = 'Your Turn!';
+            }
+
+            function nextLevel() {
+                level++;
+                levelDisplay.textContent = level;
+                playerSequence = [];
+                sequence.push(Math.floor(Math.random() * gameCaches.length));
+                showSequence();
+            }
+            
+            function startGame() {
+                level = 0;
+                sequence = [];
+                levelDisplay.textContent = '0';
+                statusDisplay.textContent = 'Get Ready!';
+                nextLevel();
+            }
+
+            function gameOver() {
+                gamePhase = 'gameover';
+                statusDisplay.textContent = `Game Over! Lvl ${level}`;
+                startGameBtn.disabled = false;
+                startGameBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                startGameBtn.textContent = "Play Again";
+            }
+
+            startGameBtn.addEventListener('click', startGame);
+
+            gameCanvas.addEventListener('click', (e) => {
+                if (gamePhase !== 'playing') return;
+
+                const rect = gameCanvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const clickedCacheIndex = gameCaches.findIndex(cache => 
+                    x >= cache.x && x <= cache.x + cache.w &&
+                    y >= cache.y && y <= cache.y + cache.h
+                );
+
+                if (clickedCacheIndex > -1) {
+                    playerSequence.push(clickedCacheIndex);
+                    const currentStep = playerSequence.length - 1;
+
+                    // Flash the clicked cache
+                    activeCache = clickedCacheIndex;
+                    drawGame();
+                    setTimeout(() => { activeCache = -1; drawGame(); }, 200);
+
+                    if (sequence[currentStep] !== playerSequence[currentStep]) {
+                        gameOver();
                         return;
                     }
 
-                    const step = steps[currentStep];
-                    const targetNode = nodes[step.node];
-                    const targetPos = getPosition(targetNode);
-                    
-                    packet.style.transform = `translate(${targetPos.x}px, ${targetPos.y}px)`;
-                    statusText.textContent = step.text;
-
-                    setTimeout(() => {
-                        targetNode.classList.add('active');
-                        if (step.node !== 'start') {
-                           setTimeout(() => targetNode.classList.remove('active'), 800);
-                        }
-                        currentStep++;
-                        runStep();
-                    }, 1000);
+                    if (playerSequence.length === sequence.length) {
+                        setTimeout(nextLevel, 500);
+                    }
                 }
-                
-                setTimeout(runStep, 100);
             });
-
+            
+            window.addEventListener('resize', resizeGameCanvas);
+            resizeGameCanvas();
+            drawGame();
 
             // --- Chart.js Implementations ---
-            const sharedChartOptions = {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: { duration: 2000, easing: 'easeOutQuart' },
-                plugins: {
-                    legend: { labels: { font: { family: "'Inter', sans-serif", size: 14 }, color: '#E0E7FF' } },
-                    tooltip: {
-                        backgroundColor: '#E0E7FF', titleColor: '#1A2E2E', bodyColor: '#1A2E2E',
-                        bodyFont: { family: "'Inter', sans-serif" }, titleFont: { family: "'Inter', sans-serif", weight: 'bold' },
-                        padding: 10, cornerRadius: 4
-                    }
-                },
-            };
-            const cagData = {
-                labels: ['L0/L1 Cache', 'L2 Semantic', 'L3 Git Analysis'],
-                datasets: [{
-                    label: 'Query Resolution Source', data: [75, 20, 5],
-                    backgroundColor: ['#00E5FF', '#7E57C2', '#66BB6A'],
-                    borderColor: 'rgba(15, 12, 41, 0.7)', borderWidth: 5, hoverOffset: 12
-                }]
-            };
-            new Chart(document.getElementById('cagChart').getContext('2d'), {
-                type: 'doughnut', data: cagData, options: { ...sharedChartOptions, cutout: '60%', plugins: { ...sharedChartOptions.plugins, legend: { display: false } } }
-            });
-            const languageData = {
-                labels: ['Python', ['JavaScript/', 'TypeScript'], 'Go', 'Rust'],
-                datasets: [{
-                    label: 'Files Parsed per Second', data: [48, 45, 60, 35],
-                    backgroundColor: ['#66BB6A', '#42A5F5', '#26A69A', '#7E57C2'],
-                    borderColor: '#E0E7FF', borderWidth: 2, borderRadius: 5, borderSkipped: false
-                }]
-            };
-            new Chart(document.getElementById('languageChart').getContext('2d'), {
-                type: 'bar', data: languageData, options: { ...sharedChartOptions, indexAxis: 'y', scales: { x: { beginAtZero: true, title: { display: true, text: 'Files / Second', font: { family: "'Inter', sans-serif", weight: 'bold', size: 14 }, color: '#E0E7FF' }, ticks: { color: '#E0E7FF' }, grid: { color: 'rgba(224, 231, 255, 0.1)' } }, y: { ticks: { color: '#E0E7FF', font: { size: 14 } }, grid: { display: false } } }, plugins: { ...sharedChartOptions.plugins, legend: { display: false } } }
-            });
+            const sharedChartOptions = { responsive: true, maintainAspectRatio: false, animation: { duration: 2000, easing: 'easeOutQuart' }, plugins: { legend: { labels: { font: { family: "'Inter', sans-serif", size: 14 }, color: '#E0E7FF' } }, tooltip: { backgroundColor: '#1A202C', titleColor: '#E0E7FF', bodyColor: '#CBD5E0', bodyFont: { family: "'Inter', sans-serif" }, titleFont: { family: "'Inter', sans-serif", weight: 'bold' }, padding: 12, cornerRadius: 6, borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)' } } };
+            const cagData = { labels: ['L0/L1 Cache', 'L2 Semantic', 'L3 Git Analysis'], datasets: [{ label: 'Query Resolution Source', data: [75, 20, 5], backgroundColor: ['rgba(0, 229, 255, 0.7)', 'rgba(126, 87, 194, 0.7)', 'rgba(102, 187, 106, 0.7)'], borderColor: '#0f0c29', borderWidth: 4, hoverOffset: 15, hoverBorderColor: '#E0E7FF' }] };
+            new Chart(document.getElementById('cagChart').getContext('2d'), { type: 'doughnut', data: cagData, options: { ...sharedChartOptions, cutout: '60%', plugins: { ...sharedChartOptions.plugins, legend: { display: false } } } });
+            const languageData = { labels: ['Python', ['JavaScript/', 'TypeScript'], 'Go', 'Rust'], datasets: [{ label: 'Files Parsed per Second', data: [48, 45, 60, 35], backgroundColor: ['rgba(102, 187, 106, 0.7)', 'rgba(66, 165, 245, 0.7)', 'rgba(38, 166, 154, 0.7)', 'rgba(126, 87, 194, 0.7)'], borderColor: '#E0E7FF', borderWidth: 2, borderRadius: 5, borderSkipped: false }] };
+            new Chart(document.getElementById('languageChart').getContext('2d'), { type: 'bar', data: languageData, options: { ...sharedChartOptions, indexAxis: 'y', scales: { x: { beginAtZero: true, title: { display: true, text: 'Files / Second', font: { family: "'Inter', sans-serif", weight: 'bold', size: 14 }, color: '#E0E7FF' }, ticks: { color: '#E0E7FF' }, grid: { color: 'rgba(224, 231, 255, 0.1)' } }, y: { ticks: { color: '#E0E7FF', font: { size: 14 } }, grid: { display: false } } }, plugins: { ...sharedChartOptions.plugins, legend: { display: false } } } });
         });
     </script>
 </body>
