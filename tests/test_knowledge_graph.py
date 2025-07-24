@@ -35,7 +35,7 @@ def test_weighted_shortest_path():
 
     assert graph.shortest_path("A", "B") == ["A", "C", "B"]
 
-
+    
 def test_no_path_available():
     graph = KnowledgeGraph()
     graph.add_asset("A")

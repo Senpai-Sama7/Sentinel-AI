@@ -39,11 +39,10 @@ A production-ready **semantic memory** micro-service that transforms unstructure
 - **Documentation & Runbooks:**\
   C4 diagrams and Pydantic schemas, Postman collections, code snippets, and operational playbooks for incident response.
 - **Graph-Based Knowledge Modeling:**\
-  Weighted, directed graphs with node and edge attributes for representing assets. See [docs/knowledge_graph.md](docs/knowledge_graph.md).
-- **Attack Tree Logic:**\
-  Hierarchical preconditions and actions with cross-links to graph assets. See [docs/attack_tree.md](docs/attack_tree.md).
-- **Reasoning Engine:**\
+  Weighted, directed graphs with node and edge attributes for representing assets. See [docs/knowledge_graph.md]
+  - **Reasoning Engine:**\
   Chain- and tree-of-thought parsing with branch tracking for auditability. See [docs/reasoning_engine.md](docs/reasoning_engine.md).
+
 
 ---
 
