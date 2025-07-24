@@ -45,4 +45,3 @@ ingress:
     - secretName: sentinel-tls
       hosts:
         - sentinel.example.com
-
