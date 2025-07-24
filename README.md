@@ -46,6 +46,9 @@ A production-ready **semantic memory** micro-service that transforms unstructure
   Chain- and tree-of-thought parsing with branch tracking for auditability. See [docs/reasoning_engine.md](docs/reasoning_engine.md).
 - **Vector Memory:**\
   Store reasoning chains and attack paths in Weaviate for later recall.
+- **Rules & Reflection:**\
+  Enforce hard constraints and log lessons after each run. See
+  [docs/rules.md](docs/rules.md) and [docs/reflection.md](docs/reflection.md).
 
 
 ---
