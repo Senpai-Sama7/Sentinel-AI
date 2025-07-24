@@ -1,8 +1,8 @@
 # Sentinel AI
 
-[![CI](https://github.com/Senpai-sama7/Sentinel-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/Sentinel-AI/actions/workflows/ci.yml)
-[![Helm Chart](https://img.shields.io/badge/helm-chart-blue)](https://github.com/your-org/Sentinel-AI/tree/main/helm)
-[![Docker](https://img.shields.io/docker/pulls/your-org/sentinel-memory-service)](https://hub.docker.com/r/your-org/sentinel-memory-service)
+[![CI](https://github.com/Senpai-sama7/Sentinel-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/Senpai-sama7/Sentinel-AI/actions/workflows/ci.yml)
+[![Helm Chart](https://img.shields.io/badge/helm-chart-blue)](https://github.com/Senpai-sama7/Sentinel-AI/tree/main/helm)
+[![Docker](https://img.shields.io/docker/pulls/Senpai-sama7/sentinel-memory-service)](https://hub.docker.com/r/Senpai-sama7/sentinel-memory-service)
 
 A production-ready **semantic memory** micro-service that transforms unstructured content into actionable, AI-driven insights. Designed for high-throughput ingestion, precise semantic indexing, and Retrieval-Augmented Generation (RAG), it delivers sub-millisecond search and contextual responses.
 
