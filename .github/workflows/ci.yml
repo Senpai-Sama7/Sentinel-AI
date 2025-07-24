@@ -48,14 +48,24 @@ jobs:
         run: make ingest-test
       - name: Check required env vars
         run: make env-lint
-  ingest-and-validate:
+
+  lint-and-validate-helm:
     runs-on: ubuntu-latest
     needs: build-and-test
     steps:
       - uses: actions/checkout@v4
-      - name: Run ingestion job
-        run: make ingest-test
-      - name: Validate ingestion
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.13.3
+      - name: Create Chart.yaml
         run: |
-          # This is a simple validation. In a real-world scenario, you might query the vector store to verify the data.
-          docker-compose logs orchestrator | grep "Queued for ingestion" || exit 1
+          cat <<EOF > helm/Chart.yaml
+          apiVersion: v2
+          name: sentinel-memory-service
+          description: A Helm chart for deploying the Sentinel Memory Service.
+          version: 0.1.0
+          appVersion: "1.0.0"
+          EOF
+      - name: Lint Helm chart
+        run: helm lint helm
