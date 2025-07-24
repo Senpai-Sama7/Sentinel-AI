@@ -123,3 +123,16 @@ class L2Weaviate:
                 layer="L2-Weaviate",
                 message=f"Semantic search failed for query '{query[:50]}...': {e}"
             ) from e
+
+    def batch_import(self, class_name: str, objects: List[Dict[str, Any]], batch_size: int = 20) -> None:
+        """Batch import multiple objects into a class."""
+        try:
+            self.client.batch.configure(batch_size=batch_size, dynamic=True)
+            with self.client.batch as batch:
+                for obj in objects:
+                    batch.add_data_object(obj, class_name)
+        except Exception as e:
+            raise MemoryLayerError(
+                layer="L2-Weaviate",
+                message=f"Batch import failed for class '{class_name}': {e}"
+            ) from e
