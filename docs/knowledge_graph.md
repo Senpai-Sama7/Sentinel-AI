@@ -21,6 +21,7 @@ print(path)
 ```
 
 `shortest_path` uses edge weights when present to calculate the lowest-cost route.
+
 Attack tree nodes can reference assets in this graph for hybrid reasoning.
 
 ## Advanced
@@ -35,3 +36,4 @@ else:
     for p in paths:
         print(" -> ".join(p))
 ```
+

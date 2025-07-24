@@ -47,6 +47,7 @@ A production-ready **semantic memory** micro-service that transforms unstructure
 - **Vector Memory:**\
   Store reasoning chains and attack paths in Weaviate for later recall.
 
+
 ---
 
 ## 📖 Table of Contents
