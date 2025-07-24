@@ -17,6 +17,8 @@ venv/
 
 # Environment
 .env
+.env.local
+*.env
 .env.*
 !.env.example
 
@@ -25,6 +27,7 @@ venv/
 .idea/
 *.swp
 *.swo
+*.iml
 
 # Docker
 docker-compose.override.yml
@@ -34,6 +37,10 @@ chroma_data/
 sample_repo/
 redis_data/
 weaviate_data/
+tmp/
+temp/
+*.tmp
+*.log
 
 # Build artifacts
 dist/
@@ -42,3 +49,4 @@ build/
 
 # Mac
 .DS_Store
+Thumbs.db
