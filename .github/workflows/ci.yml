@@ -48,5 +48,6 @@ jobs:
         run: make ingest-test
       - name: Check required env vars
         run: make env-lint
+        runs-on: self-hosted 
 
 
