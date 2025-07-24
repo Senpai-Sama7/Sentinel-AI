@@ -2,7 +2,6 @@
 
 <p align="center">
   <img src="https://img.shields.io/github/license/Senpai-Sama7/Sentinel-AI?style=flat-square" alt="License"/>
-  <img src="https://img.shields.io/github/workflow/status/Senpai-Sama7/Sentinel-AI/CI?style=flat-square" alt="CI Status"/>
   <img src="https://img.shields.io/badge/python-3.8%2B-blue?style=flat-square" alt="Python Version"/>
   <img src="https://img.shields.io/badge/Docker-ready-0db7ed?logo=docker&logoColor=white&style=flat-square" alt="Docker Ready"/>
   <img src="https://img.shields.io/badge/FastAPI-0.95+-green?style=flat-square" alt="FastAPI"/>
