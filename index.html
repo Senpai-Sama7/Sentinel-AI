@@ -3,17 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sentinel AI: An Interactive Overview</title>
-    <!-- Chosen Palette: Digital Abyss -->
-    <!-- Application Structure Plan: A top-to-bottom single-page narrative infographic. The flow is designed to tell a story: 1. Hook (What is it?), 2. Architecture (How it works?), 3. Economic Advantage (Why is it better?), 4. Capabilities (What can it do?), 5. Technical Deep Dive (How powerful is it?), 6. Roadmap (Where is it going?), and 7. Call to Action. This structure guides the user from a high-level value proposition to detailed features and future plans, making complex information digestible and persuasive. -->
-    <!-- Visualization & Content Choices: 
-        - Architecture: Goal: Organize -> Viz: Custom HTML/CSS Flow Diagram -> Justification: Clearly illustrates the multi-layered memory system which is a core concept, without using prohibited SVG/Mermaid.
-        - CAG Breakdown: Goal: Inform/Compare -> Viz: Chart.js Donut Chart -> Justification: Effectively shows the proportion of queries handled by the cache, visually representing the efficiency of the CAG model.
-        - Performance KPIs: Goal: Inform -> Viz: Large Text Stats -> Justification: Makes key performance metrics stand out for immediate impact.
-        - AST Parser Performance: Goal: Compare -> Viz: Chart.js Horizontal Bar Chart -> Justification: Provides a clear, easy-to-read comparison of parsing speeds across different languages.
-        - Roadmap: Goal: Change/Organize -> Viz: Custom HTML/CSS Vertical Timeline -> Justification: A classic, intuitive way to display chronological events and future plans.
+    <title>Sentinel AI: An Interactive Experience</title>
+    <!-- 
+        MODIFICATION SUMMARY:
+        - Roadmap Fix: Populated the previously empty roadmap section with content based on the provided README files.
+        - New Feature: Added a new interactive "Visualize the Process" section.
+        - Animation: Created a one-click animation to illustrate the L0->L3 query process.
+        - CSS & JS: Added new styles and JavaScript to support the new section and its animations.
     -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -25,6 +22,11 @@
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
+        }
+        @keyframes text-power-up {
+            0% { text-shadow: 0 0 5px rgba(255,255,255,0.2); opacity: 0.5; transform: scale(0.98); }
+            50% { text-shadow: 0 0 30px rgba(0, 229, 255, 0.8), 0 0 10px rgba(255, 0, 255, 0.8); opacity: 1; transform: scale(1); }
+            100% { text-shadow: 0 0 5px rgba(255,255,255,0.2); opacity: 0.5; transform: scale(0.98); }
         }
         body {
             font-family: 'Inter', sans-serif;
@@ -45,30 +47,13 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            transition: opacity 1s ease-out;
-        }
-        #loading-video {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            min-width: 100%;
-            min-height: 100%;
-            width: auto;
-            height: auto;
-            z-index: -1;
-            transform: translateX(-50%) translateY(-50%);
-            opacity: 0.15;
+            transition: opacity 1.5s ease-out;
         }
         .loader-text {
-            font-size: 2rem;
+            font-size: 2.5rem;
             font-weight: 900;
             color: white;
-            opacity: 0;
-            animation: fadeInOut 2.5s ease-in-out infinite;
-        }
-        @keyframes fadeInOut {
-            0%, 100% { opacity: 0; }
-            50% { opacity: 1; }
+            animation: text-power-up 3s ease-in-out infinite;
         }
         #bg-canvas {
             position: fixed;
@@ -77,26 +62,7 @@
             width: 100vw;
             height: 100vh;
             z-index: -1;
-        }
-        .chart-container {
-            position: relative;
-            margin: auto;
-            height: 300px;
-            width: 100%;
-            max-width: 450px;
-        }
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 350px;
-            }
-        }
-        .flow-arrow::after {
-            content: '↓';
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: #00E5FF;
-            margin-top: 0.5rem;
-            margin-bottom: 0.5rem;
+            cursor: pointer;
         }
         .glass-card {
             background: rgba(26, 30, 40, 0.4);
@@ -104,41 +70,100 @@
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(30px) rotateX(-10deg);
         }
         .glass-card:hover {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(0, 229, 255, 0.3);
+            transform: perspective(1000px) translateY(-10px) rotateX(5deg) scale(1.05);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border-color: rgba(0, 229, 255, 0.4);
         }
         .animate-on-scroll {
-            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+            transition: opacity 1s ease-out, transform 1s cubic-bezier(0.165, 0.84, 0.44, 1);
         }
         .is-visible {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateY(0) rotateX(0);
+        }
+        .cta-button {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(90deg, #00E5FF, #8A2BE2);
+            background-size: 200% 200%;
+            transition: all 0.3s ease;
+        }
+        .cta-button:hover {
+            transform: scale(1.05) translateY(-2px);
+            box-shadow: 0 0 25px #00E5FF, 0 0 15px #8A2BE2;
+        }
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.4) 50%, transparent 80%);
+            transition: left 0.8s ease;
+        }
+        .cta-button:hover::before {
+            left: 100%;
+        }
+        .logo-pulse {
+            animation: logo-pulse-glow 4s infinite ease-in-out;
+        }
+        @keyframes logo-pulse-glow {
+            0%, 100% {
+                filter: drop-shadow(0 0 5px rgba(0, 229, 255, 0.5));
+                transform: scale(1);
+            }
+            50% {
+                filter: drop-shadow(0 0 20px rgba(255, 0, 255, 0.7));
+                transform: scale(1.03);
+            }
+        }
+        /* New styles for process animator */
+        .process-node {
+            transition: all 0.5s ease-in-out;
+            border: 2px solid rgba(224, 231, 255, 0.2);
+        }
+        .process-node.active {
+            transform: scale(1.1);
+            border-color: #00E5FF;
+            box-shadow: 0 0 20px #00E5FF, 0 0 10px #ff00ff;
+        }
+        #query-packet {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background-color: #ff00ff;
+            border-radius: 50%;
+            box-shadow: 0 0 15px #ff00ff, 0 0 5px white;
+            transition: all 1s cubic-bezier(0.6, -0.28, 0.735, 0.045); /* easeInBack for a nice start */
+            opacity: 0;
+            z-index: 10;
         }
     </style>
 </head>
 <body class="antialiased">
 
     <div id="loading-screen">
-        <video id="loading-video" autoplay muted loop playsinline>
-            <source src="https://cdn.pixabay.com/video/2022/09/20/131102-752763231_large.mp4" type="video/mp4">
-        </video>
-        <div class="loader-text">SENTINEL AI</div>
+        <div class="loader-text">INITIALIZING SENTINEL...</div>
     </div>
 
     <canvas id="bg-canvas"></canvas>
 
     <main class="relative z-10 container mx-auto p-4 md:p-8 max-w-6xl">
 
-        <header class="text-center my-12 md:my-20">
-            <h1 class="text-4xl md:text-6xl font-black text-white mb-4 animate-on-scroll">Sentinel AI</h1>
-            <p class="text-xl md:text-2xl font-medium text-slate-300 animate-on-scroll" style="transition-delay: 150ms;">The Cognitive Engine for Your Code</p>
-            <p class="max-w-3xl mx-auto mt-6 text-lg text-slate-400 animate-on-scroll" style="transition-delay: 300ms;">
+        <header class="text-center my-12 md:my-20 flex flex-col items-center">
+            <img src="https://storage.googleapis.com/gemini-prod-us-west1-409927552276/uploads/2024/07/24/769b764c58b5e982187f549c46581b17/Sentinel-AI_logo.jpg" 
+                 alt="Sentinel AI Logo" 
+                 class="w-48 h-48 md:w-56 md:h-56 mb-8 animate-on-scroll logo-pulse"
+                 onerror="this.style.display='none'">
+            <h1 class="text-4xl md:text-6xl font-black text-white mb-4 animate-on-scroll" style="transition-delay: 100ms;">Sentinel AI</h1>
+            <p class="text-xl md:text-2xl font-medium text-slate-300 animate-on-scroll" style="transition-delay: 250ms;">The Cognitive Engine for Your Code</p>
+            <p class="max-w-3xl mx-auto mt-6 text-lg text-slate-400 animate-on-scroll" style="transition-delay: 400ms;">
                 Sentinel AI transforms your codebase and documentation from static artifacts into a dynamic, reasoning partner. It's time to stop searching and start understanding.
             </p>
         </header>
@@ -151,7 +176,7 @@
                     <p class="text-xl font-bold text-white">Your Natural Language Query</p>
                     <p class="text-md text-slate-400 italic mt-1">"Show me all error handling in payment flows since Q1."</p>
                 </div>
-                <div class="flow-arrow animate-on-scroll"></div>
+                <div class="text-4xl font-black text-[#00E5FF] my-4 animate-on-scroll" style="animation: text-power-up 4s infinite ease-in-out;">↓</div>
                 <div class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
                     <div class="p-6 rounded-xl glass-card" style="transition-delay: 50ms;">
                         <p class="text-sm font-bold text-white bg-red-500 rounded-full inline-block px-3 py-1 mb-3">L0</p>
@@ -190,7 +215,7 @@
                         <li class="flex items-center"><span class="w-3 h-3 rounded-full bg-purple-500 mr-3"></span>5% require full L3 Git analysis</li>
                     </ul>
                 </div>
-                 <div class="chart-container">
+                 <div class="relative mx-auto h-[300px] md:h-[350px] w-full max-w-[450px]">
                     <canvas id="cagChart"></canvas>
                 </div>
             </div>
@@ -222,7 +247,7 @@
             <h2 class="text-3xl font-bold text-center text-white mb-12 animate-on-scroll">Under the Hood: Parsing Performance</h2>
             <div class="p-6 rounded-xl glass-card animate-on-scroll">
                 <p class="text-center max-w-2xl mx-auto text-slate-400 mb-6">The performance of the Rust-based AST parser is critical for rapid analysis. It efficiently processes various languages, enabling deep code intelligence at scale.</p>
-                <div class="chart-container" style="max-width: 800px; height: 400px;">
+                <div class="relative mx-auto h-[400px] w-full max-w-[800px]">
                     <canvas id="languageChart"></canvas>
                 </div>
             </div>
@@ -231,9 +256,10 @@
         <section id="roadmap" class="my-16 md:my-24">
             <h2 class="text-3xl font-bold text-center text-white mb-12 animate-on-scroll">The Future Roadmap</h2>
             <div class="relative max-w-2xl mx-auto">
-                <div class="border-l-4 border-[#00E5FF] absolute h-full top-0 left-4 md:left-1/2 -ml-px"></div>
+                <div class="border-l-4 border-[#00E5FF] absolute h-full top-0 left-4 md:left-1/2 -ml-px" style="filter: drop-shadow(0 0 5px #00E5FF);"></div>
+                <!-- ROADMAP CONTENT INSERTED HERE -->
                 <div class="space-y-12">
-                    <div class="relative glass-card" style="transition-delay: 50ms;">
+                    <div class="relative glass-card animate-on-scroll" style="transition-delay: 50ms;">
                         <div class="ml-12 md:ml-0 md:flex items-center md:justify-end">
                             <div class="md:w-1/2 md:pr-8 text-right">
                                 <p class="text-xl font-bold text-white">Q3 2025</p>
@@ -247,7 +273,7 @@
                         </div>
                         <div class="absolute top-1/2 -mt-3 w-6 h-6 rounded-full bg-[#00E5FF] shadow left-4 -ml-3 md:left-1/2"></div>
                     </div>
-                     <div class="relative glass-card" style="transition-delay: 150ms;">
+                     <div class="relative glass-card animate-on-scroll" style="transition-delay: 150ms;">
                         <div class="ml-12 md:ml-0 md:flex items-center">
                             <div class="md:w-1/2 md:text-right md:pr-8">
                                 <div class="p-6 rounded-xl">
@@ -261,7 +287,7 @@
                         </div>
                         <div class="absolute top-1/2 -mt-3 w-6 h-6 rounded-full bg-[#00E5FF] shadow left-4 -ml-3 md:left-1/2"></div>
                     </div>
-                     <div class="relative glass-card" style="transition-delay: 250ms;">
+                     <div class="relative glass-card animate-on-scroll" style="transition-delay: 250ms;">
                          <div class="ml-12 md:ml-0 md:flex items-center md:justify-end">
                             <div class="md:w-1/2 md:pr-8 text-right">
                                 <p class="text-xl font-bold text-white">2026+</p>
@@ -279,9 +305,44 @@
             </div>
         </section>
 
+        <!-- NEW PROCESS ANIMATION SECTION -->
+        <section id="process-animator" class="my-16 md:my-24">
+            <h2 class="text-3xl font-bold text-center text-white mb-4 animate-on-scroll">Visualize the Process</h2>
+            <p class="text-center max-w-2xl mx-auto text-slate-400 mb-8 animate-on-scroll" style="transition-delay: 150ms;">Click the button to see how Sentinel AI processes a query through its cognitive layers in real-time.</p>
+            <div class="p-8 rounded-2xl glass-card animate-on-scroll text-center">
+                <button id="animate-process-btn" class="mb-8 text-white font-bold py-3 px-8 rounded-lg shadow-lg cta-button">
+                    Initiate Query
+                </button>
+                <div id="animation-container" class="relative h-64 md:h-48 flex flex-col md:flex-row justify-around items-center">
+                    <div id="query-packet"></div>
+                    <div id="node-start" class="process-node p-3 rounded-lg w-32">
+                        <p class="font-bold">User Query</p>
+                    </div>
+                    <div class="text-2xl text-slate-500 mx-2 hidden md:block">→</div>
+                    <div id="node-l0" class="process-node p-3 rounded-lg w-32 mt-4 md:mt-0">
+                        <p class="font-bold text-red-400">L0 Cache</p>
+                    </div>
+                    <div class="text-2xl text-slate-500 mx-2 hidden md:block">→</div>
+                    <div id="node-l1" class="process-node p-3 rounded-lg w-32 mt-4 md:mt-0">
+                        <p class="font-bold text-green-400">L1 Cache</p>
+                    </div>
+                    <div class="text-2xl text-slate-500 mx-2 hidden md:block">→</div>
+                    <div id="node-l2" class="process-node p-3 rounded-lg w-32 mt-4 md:mt-0">
+                        <p class="font-bold text-blue-400">L2 Semantic</p>
+                    </div>
+                    <div class="text-2xl text-slate-500 mx-2 hidden md:block">→</div>
+                    <div id="node-l3" class="process-node p-3 rounded-lg w-32 mt-4 md:mt-0">
+                        <p class="font-bold text-purple-400">L3 Source</p>
+                    </div>
+                </div>
+                <p id="animation-status" class="mt-8 text-lg text-cyan-300 h-6"></p>
+            </div>
+        </section>
+
+
         <footer class="text-center border-t border-gray-700 pt-12 mt-16">
             <p class="font-bold text-2xl text-white animate-on-scroll">Ready to think with your code?</p>
-            <a href="https://github.com/Senpai-Sama7/Sentinel-AI" class="mt-6 inline-block bg-slate-100 text-[#1A2E2E] font-bold py-3 px-8 rounded-lg shadow-lg hover:bg-[#00E5FF] hover:text-black transition-all duration-300 transform hover:scale-105 animate-on-scroll" style="transition-delay: 150ms;">
+            <a href="https://github.com/Senpai-Sama7/Sentinel-AI" class="mt-6 inline-block text-white font-bold py-4 px-10 rounded-lg shadow-lg cta-button animate-on-scroll" style="transition-delay: 150ms;">
                 Explore on GitHub
             </a>
             <p class="text-sm text-slate-500 mt-8 animate-on-scroll" style="transition-delay: 300ms;">MIT Licensed. Built with ❤️ and the conviction that your code should understand you, too.</p>
@@ -296,35 +357,48 @@
                 loadingScreen.style.opacity = '0';
                 setTimeout(() => {
                     loadingScreen.style.display = 'none';
-                }, 1000);
-            }, 2500);
+                }, 1500);
+            }, 3000);
 
-            let scene, camera, renderer, particles, lines;
-            const mouse = new THREE.Vector2();
+            // --- Enhanced Three.js Scene ---
+            let scene, camera, renderer, particles, lines, mouse, raycaster;
+            let targetCameraZ = 5;
+            const mousePos = new THREE.Vector2();
 
             function init() {
                 scene = new THREE.Scene();
                 camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-                camera.position.z = 5;
+                camera.position.z = targetCameraZ;
                 renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg-canvas'), alpha: true });
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                
+                raycaster = new THREE.Raycaster();
+                mouse = new THREE.Vector2();
 
-                const particlesCount = 300;
+                const particlesCount = 400;
                 const positions = new Float32Array(particlesCount * 3);
+                const velocities = new Float32Array(particlesCount * 3);
+
                 for (let i = 0; i < particlesCount; i++) {
-                    positions[i * 3] = (Math.random() - 0.5) * 15;
-                    positions[i * 3 + 1] = (Math.random() - 0.5) * 15;
-                    positions[i * 3 + 2] = (Math.random() - 0.5) * 15;
+                    positions[i * 3] = (Math.random() - 0.5) * 20;
+                    positions[i * 3 + 1] = (Math.random() - 0.5) * 20;
+                    positions[i * 3 + 2] = (Math.random() - 0.5) * 20;
+                    velocities[i * 3] = (Math.random() - 0.5) * 0.001;
+                    velocities[i * 3 + 1] = (Math.random() - 0.5) * 0.001;
+                    velocities[i * 3 + 2] = (Math.random() - 0.5) * 0.001;
                 }
                 const particlesGeometry = new THREE.BufferGeometry();
                 particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                particlesGeometry.setAttribute('velocity', new THREE.BufferAttribute(velocities, 3));
+                
                 const particlesMaterial = new THREE.PointsMaterial({
                     color: 0xff00ff,
-                    size: 0.035,
+                    size: 0.04,
                     transparent: true,
-                    opacity: 0.7,
-                    sizeAttenuation: true
+                    opacity: 0.8,
+                    sizeAttenuation: true,
+                    blending: THREE.AdditiveBlending
                 });
                 particles = new THREE.Points(particlesGeometry, particlesMaterial);
                 scene.add(particles);
@@ -332,7 +406,8 @@
                 const linesMaterial = new THREE.LineBasicMaterial({
                     color: 0x00E5FF,
                     transparent: true,
-                    opacity: 0.1
+                    opacity: 0.08,
+                    blending: THREE.AdditiveBlending
                 });
                 const linesGeometry = new THREE.BufferGeometry();
                 lines = new THREE.LineSegments(linesGeometry, linesMaterial);
@@ -340,6 +415,8 @@
 
                 window.addEventListener('resize', onWindowResize, false);
                 document.addEventListener('mousemove', onMouseMove, false);
+                window.addEventListener('scroll', onScroll, false);
+                renderer.domElement.addEventListener('click', onClick, false);
             }
 
             function onWindowResize() {
@@ -349,39 +426,75 @@
             }
 
             function onMouseMove(event) {
-                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+                mousePos.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mousePos.y = -(event.clientY / window.innerHeight) * 2 + 1;
+                mouse.x = event.clientX;
+                mouse.y = event.clientY;
+            }
+
+            function onScroll() {
+                const scrollY = window.scrollY;
+                targetCameraZ = 5 - scrollY * 0.005;
+            }
+            
+            function onClick(event) {
+                const clickMouse = new THREE.Vector2();
+                clickMouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                clickMouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+                
+                raycaster.setFromCamera(clickMouse, camera);
+                const intersects = raycaster.intersectObject(particles);
+
+                if (intersects.length > 0) {
+                     const velocities = particles.geometry.attributes.velocity.array;
+                     const positions = particles.geometry.attributes.position.array;
+                     const intersectPoint = intersects[0].point;
+
+                     for(let i = 0; i < particles.geometry.attributes.position.count; i++) {
+                         const p = new THREE.Vector3(positions[i*3], positions[i*3+1], positions[i*3+2]);
+                         const dist = p.distanceTo(intersectPoint);
+                         if (dist < 3) {
+                             const force = (3 - dist) * 0.01;
+                             velocities[i*3] += (p.x - intersectPoint.x) * force;
+                             velocities[i*3+1] += (p.y - intersectPoint.y) * force;
+                             velocities[i*3+2] += (p.z - intersectPoint.z) * force;
+                         }
+                     }
+                     particles.geometry.attributes.velocity.needsUpdate = true;
+                }
             }
 
             function animate() {
                 requestAnimationFrame(animate);
-
                 const positions = particles.geometry.attributes.position.array;
+                const velocities = particles.geometry.attributes.velocity.array;
                 const linePositions = [];
                 const particleCount = particles.geometry.attributes.position.count;
-                
-                particles.rotation.y += 0.0002;
-
+                for(let i = 0; i < particleCount * 3; i++) {
+                    positions[i] += velocities[i];
+                    velocities[i] *= 0.98;
+                    if (positions[i] > 10 || positions[i] < -10) {
+                        velocities[i] = -velocities[i];
+                    }
+                }
+                particles.geometry.attributes.position.needsUpdate = true;
                 for (let i = 0; i < particleCount; i++) {
                     for (let j = i + 1; j < particleCount; j++) {
                         const p1 = new THREE.Vector3(positions[i*3], positions[i*3+1], positions[i*3+2]);
                         const p2 = new THREE.Vector3(positions[j*3], positions[j*3+1], positions[j*3+2]);
                         const distance = p1.distanceTo(p2);
-
-                        if (distance < 1.5) {
+                        if (distance < 1.8) {
                             linePositions.push(p1.x, p1.y, p1.z);
                             linePositions.push(p2.x, p2.y, p2.z);
                         }
                     }
                 }
-
                 lines.geometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
                 lines.geometry.attributes.position.needsUpdate = true;
-
-                camera.position.x += (mouse.x * 0.5 - camera.position.x) * 0.02;
-                camera.position.y += (-mouse.y * 0.5 - camera.position.y) * 0.02;
+                camera.position.x += (mousePos.x * 1.5 - camera.position.x) * 0.03;
+                camera.position.y += (-mousePos.y * 1.5 - camera.position.y) * 0.03;
+                camera.position.z += (targetCameraZ - camera.position.z) * 0.05;
                 camera.lookAt(scene.position);
-
                 renderer.render(scene, camera);
             }
             
@@ -394,129 +507,127 @@
                         entry.target.classList.add('is-visible');
                     }
                 });
-            }, { threshold: 0.1 });
+            }, { threshold: 0.15 });
 
             document.querySelectorAll('.animate-on-scroll, .glass-card').forEach(el => {
                 observer.observe(el);
             });
-        });
 
-        const tooltipTitleCallback = (tooltipItems) => {
-            const item = tooltipItems[0];
-            let label = item.chart.data.labels[item.dataIndex];
-            if (Array.isArray(label)) {
-                return label.join(' ');
-            }
-            return label;
-        };
-        
-        const sharedChartOptions = {
-            responsive: true,
-            maintainAspectRatio: false,
-            animation: {
-                duration: 1500,
-                easing: 'easeInOutQuart'
-            },
-            plugins: {
-                legend: {
-                    labels: {
-                        font: { family: "'Inter', sans-serif", size: 14 },
-                        color: '#E0E7FF'
+            // --- Process Animator Logic ---
+            const animateBtn = document.getElementById('animate-process-btn');
+            const packet = document.getElementById('query-packet');
+            const statusText = document.getElementById('animation-status');
+            const nodes = {
+                start: document.getElementById('node-start'),
+                l0: document.getElementById('node-l0'),
+                l1: document.getElementById('node-l1'),
+                l2: document.getElementById('node-l2'),
+                l3: document.getElementById('node-l3'),
+            };
+
+            let isAnimating = false;
+
+            animateBtn.addEventListener('click', () => {
+                if (isAnimating) return;
+                isAnimating = true;
+                animateBtn.disabled = true;
+                animateBtn.style.opacity = '0.5';
+
+                Object.values(nodes).forEach(node => node.classList.remove('active'));
+                
+                const getPosition = (element) => {
+                    const rect = element.getBoundingClientRect();
+                    const containerRect = document.getElementById('animation-container').getBoundingClientRect();
+                    return {
+                        x: rect.left - containerRect.left + (rect.width / 2) - (packet.offsetWidth / 2),
+                        y: rect.top - containerRect.top + (rect.height / 2) - (packet.offsetHeight / 2),
+                    };
+                };
+
+                const startPos = getPosition(nodes.start);
+                packet.style.transform = `translate(${startPos.x}px, ${startPos.y}px)`;
+                packet.style.opacity = '1';
+                packet.style.transition = 'all 1s cubic-bezier(0.36, 0, 0.66, -0.56)'; // easeInBack
+                
+                const steps = [
+                    { node: 'l0', text: 'Checking L0 Neural Cache...' },
+                    { node: 'l1', text: 'Checking L1 Distributed Memory...' },
+                    { node: 'l2', text: 'Consulting L2 Semantic Memory...' },
+                    { node: 'l3', text: 'Analyzing L3 Source of Truth...' },
+                    { node: 'start', text: 'Response synthesized!' }
+                ];
+
+                let currentStep = 0;
+                function runStep() {
+                    if (currentStep >= steps.length) {
+                        setTimeout(() => {
+                            packet.style.opacity = '0';
+                            statusText.textContent = 'Ready for new query.';
+                            isAnimating = false;
+                            animateBtn.disabled = false;
+                            animateBtn.style.opacity = '1';
+                        }, 1000);
+                        return;
                     }
-                },
-                tooltip: {
-                    backgroundColor: '#E0E7FF',
-                    titleColor: '#1A2E2E',
-                    bodyColor: '#1A2E2E',
-                    callbacks: { title: tooltipTitleCallback },
-                    bodyFont: { family: "'Inter', sans-serif" },
-                    titleFont: { family: "'Inter', sans-serif", weight: 'bold' },
-                    padding: 10,
-                    cornerRadius: 4
-                }
-            },
-            scales: {
-                y: {
-                    ticks: { font: { family: "'Inter', sans-serif" }, color: '#E0E7FF' },
-                    grid: { color: 'rgba(224, 231, 255, 0.1)' }
-                },
-                x: {
-                    ticks: { font: { family: "'Inter', sans-serif" }, color: '#E0E7FF' },
-                    grid: { display: false }
-                }
-            }
-        };
 
-        const cagData = {
-            labels: ['L0/L1 Cache', 'L2 Semantic', 'L3 Git Analysis'],
-            datasets: [{
-                label: 'Query Resolution Source',
-                data: [75, 20, 5],
-                backgroundColor: ['#00E5FF', '#7E57C2', '#66BB6A'],
-                borderColor: 'rgba(15, 12, 41, 0.5)',
-                borderWidth: 5,
-                hoverOffset: 8
-            }]
-        };
+                    const step = steps[currentStep];
+                    const targetNode = nodes[step.node];
+                    const targetPos = getPosition(targetNode);
+                    
+                    packet.style.transform = `translate(${targetPos.x}px, ${targetPos.y}px)`;
+                    statusText.textContent = step.text;
 
-        const cagCtx = document.getElementById('cagChart').getContext('2d');
-        new Chart(cagCtx, {
-            type: 'doughnut',
-            data: cagData,
-            options: {
+                    setTimeout(() => {
+                        targetNode.classList.add('active');
+                        if (step.node !== 'start') {
+                           setTimeout(() => targetNode.classList.remove('active'), 800);
+                        }
+                        currentStep++;
+                        runStep();
+                    }, 1000);
+                }
+                
+                setTimeout(runStep, 100);
+            });
+
+
+            // --- Chart.js Implementations ---
+            const sharedChartOptions = {
                 responsive: true,
                 maintainAspectRatio: false,
-                cutout: '60%',
+                animation: { duration: 2000, easing: 'easeOutQuart' },
                 plugins: {
-                    legend: { display: false },
-                    tooltip: sharedChartOptions.plugins.tooltip
-                }
-            }
-        });
-        
-        const languageData = {
-            labels: ['Python', ['JavaScript/', 'TypeScript'], 'Go', 'Rust'],
-            datasets: [{
-                label: 'Files Parsed per Second',
-                data: [48, 45, 60, 35],
-                backgroundColor: ['#66BB6A', '#42A5F5', '#26A69A', '#7E57C2'],
-                borderColor: '#E0E7FF',
-                borderWidth: 2,
-                borderRadius: 5,
-                borderSkipped: false
-            }]
-        };
-
-        const languageCtx = document.getElementById('languageChart').getContext('2d');
-        new Chart(languageCtx, {
-            type: 'bar',
-            data: languageData,
-            options: { ...sharedChartOptions,
-                indexAxis: 'y',
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Files / Second',
-                            font: { family: "'Inter', sans-serif", weight: 'bold', size: 14 },
-                            color: '#E0E7FF'
-                        },
-                        ticks: { color: '#E0E7FF' },
-                        grid: { color: 'rgba(224, 231, 255, 0.1)' }
-                    },
-                    y: {
-                        ticks: { color: '#E0E7FF', font: { size: 14 } },
-                        grid: { display: false }
+                    legend: { labels: { font: { family: "'Inter', sans-serif", size: 14 }, color: '#E0E7FF' } },
+                    tooltip: {
+                        backgroundColor: '#E0E7FF', titleColor: '#1A2E2E', bodyColor: '#1A2E2E',
+                        bodyFont: { family: "'Inter', sans-serif" }, titleFont: { family: "'Inter', sans-serif", weight: 'bold' },
+                        padding: 10, cornerRadius: 4
                     }
                 },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: sharedChartOptions.plugins.tooltip
-                }
-            }
+            };
+            const cagData = {
+                labels: ['L0/L1 Cache', 'L2 Semantic', 'L3 Git Analysis'],
+                datasets: [{
+                    label: 'Query Resolution Source', data: [75, 20, 5],
+                    backgroundColor: ['#00E5FF', '#7E57C2', '#66BB6A'],
+                    borderColor: 'rgba(15, 12, 41, 0.7)', borderWidth: 5, hoverOffset: 12
+                }]
+            };
+            new Chart(document.getElementById('cagChart').getContext('2d'), {
+                type: 'doughnut', data: cagData, options: { ...sharedChartOptions, cutout: '60%', plugins: { ...sharedChartOptions.plugins, legend: { display: false } } }
+            });
+            const languageData = {
+                labels: ['Python', ['JavaScript/', 'TypeScript'], 'Go', 'Rust'],
+                datasets: [{
+                    label: 'Files Parsed per Second', data: [48, 45, 60, 35],
+                    backgroundColor: ['#66BB6A', '#42A5F5', '#26A69A', '#7E57C2'],
+                    borderColor: '#E0E7FF', borderWidth: 2, borderRadius: 5, borderSkipped: false
+                }]
+            };
+            new Chart(document.getElementById('languageChart').getContext('2d'), {
+                type: 'bar', data: languageData, options: { ...sharedChartOptions, indexAxis: 'y', scales: { x: { beginAtZero: true, title: { display: true, text: 'Files / Second', font: { family: "'Inter', sans-serif", weight: 'bold', size: 14 }, color: '#E0E7FF' }, ticks: { color: '#E0E7FF' }, grid: { color: 'rgba(224, 231, 255, 0.1)' } }, y: { ticks: { color: '#E0E7FF', font: { size: 14 } }, grid: { display: false } } }, plugins: { ...sharedChartOptions.plugins, legend: { display: false } } }
+            });
         });
-
     </script>
 </body>
 </html>
