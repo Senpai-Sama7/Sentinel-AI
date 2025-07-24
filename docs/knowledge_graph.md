@@ -22,3 +22,18 @@ print(path)
 
 `shortest_path` uses edge weights when present to calculate the lowest-cost route.
 
+Attack tree nodes can reference assets in this graph for hybrid reasoning.
+
+## Advanced
+
+List possible attack paths and detect when none are available:
+
+```python
+paths = net.paths("Server_A", "DB")
+if not paths:
+    print("no path available")
+else:
+    for p in paths:
+        print(" -> ".join(p))
+```
+
