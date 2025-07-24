@@ -57,13 +57,19 @@ logs: ## 📄 Tail logs for all running services
 	@echo "--> Tailing logs for all services. Press Ctrl+C to exit."
 	@docker-compose logs -f
 
+format: ## Run black code formatter
+	@poetry run black .
+
+type-check: ## Run mypy type checker
+	@poetry run mypy --explicit-package-bases . || true
+
 lint: ## 🎨 Lint and format all services
 	@echo "--> Linting Python code..."
 	@if [ ! -f .env ]; then cp .env.example .env; fi
 	@poetry run flake8 . || true
-	@poetry run black --check . || true
-	@poetry run mypy . || true
-	# Add linting commands for other services here
+	@make format
+	@make type-check
+# Add linting commands for other services here
 	@echo "--> Linting complete."
 
 ingest-test:  ## Run ingestion test against sample repo for CI
