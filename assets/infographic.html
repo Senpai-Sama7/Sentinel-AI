@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentinel AI: The Architecture of Code Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 300px;
+            width: 100%;
+            max-width: 450px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .gradient-text {
+            background: linear-gradient(to right, #118AB2, #06D6A0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .flow-arrow::after {
+            content: '↓';
+            font-size: 2rem;
+            font-weight: 900;
+            color: #118AB2;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .kpi-card {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <main class="container mx-auto p-4 md:p-8">
+
+        <header class="text-center mb-12 md:mb-20">
+            <h1 class="text-4xl md:text-6xl font-black text-[#073B4C] mb-4">Sentinel AI</h1>
+            <p class="text-xl md:text-2xl font-medium text-[#073B4C]">Where Code Meets <span class="gradient-text font-bold">Consciousness</span></p>
+            <p class="max-w-3xl mx-auto mt-4 text-gray-600">
+                Stop searching for answers—start having conversations with your code. Sentinel AI transforms your codebase from a static liability into a living, reasoning partner.
+            </p>
+        </header>
+
+        <section id="architecture" class="mb-12 md:mb-20">
+            <h2 class="text-3xl font-bold text-center mb-10 text-[#073B4C]">The Architecture of Understanding</h2>
+            <div class="flex flex-col items-center">
+                <div class="text-center p-6 rounded-xl shadow-lg bg-white w-full max-w-md mb-4">
+                    <p class="text-2xl font-bold text-[#073B4C]">Your Query</p>
+                    <p class="text-sm text-gray-500">"Show me all error handling in payment flows since Q1."</p>
+                </div>
+                <div class="flow-arrow"></div>
+                <div class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
+                    <div class="p-6 rounded-xl shadow-lg bg-white">
+                        <p class="text-sm font-bold text-white bg-[#FF6B6B] rounded-full inline-block px-3 py-1 mb-3">L0</p>
+                        <h3 class="text-xl font-bold text-[#073B4C]">Neural Cache</h3>
+                        <p class="text-gray-600 mt-2">Ultra-fast in-memory cache for sub-millisecond access. Your system's muscle memory.</p>
+                    </div>
+                    <div class="p-6 rounded-xl shadow-lg bg-white">
+                        <p class="text-sm font-bold text-white bg-[#FFD166] rounded-full inline-block px-3 py-1 mb-3">L1</p>
+                        <h3 class="text-xl font-bold text-[#073B4C]">Distributed Memory</h3>
+                        <p class="text-gray-600 mt-2">Redis-backed cache that creates a shared brain for your entire team.</p>
+                    </div>
+                    <div class="p-6 rounded-xl shadow-lg bg-white">
+                        <p class="text-sm font-bold text-white bg-[#06D6A0] rounded-full inline-block px-3 py-1 mb-3">L2</p>
+                        <h3 class="text-xl font-bold text-[#073B4C]">Semantic Memory</h3>
+                        <p class="text-gray-600 mt-2">Vector databases map complex relationships within code and documents.</p>
+                    </div>
+                    <div class="p-6 rounded-xl shadow-lg bg-white">
+                        <p class="text-sm font-bold text-white bg-[#118AB2] rounded-full inline-block px-3 py-1 mb-3">L3</p>
+                        <h3 class="text-xl font-bold text-[#073B4C]">Source of Truth</h3>
+                        <p class="text-gray-600 mt-2">Git-backed store provides perfect historical context for time-aware reasoning.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="performance" class="mb-12 md:mb-20">
+             <h2 class="text-3xl font-bold text-center mb-10 text-[#073B4C]">Performance & Economic Impact</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="p-8 rounded-xl shadow-lg text-center kpi-card">
+                    <p class="text-6xl font-black text-[#06D6A0]">&lt;1ms</p>
+                    <p class="text-xl font-bold mt-2 text-[#073B4C]">Cached Response Time</p>
+                    <p class="text-gray-600 mt-2">Instant answers from L0/L1 caches keep developers in a state of flow.</p>
+                </div>
+                <div class="p-8 rounded-xl shadow-lg text-center kpi-card">
+                    <p class="text-6xl font-black text-[#118AB2]">&lt;100ms</p>
+                    <p class="text-xl font-bold mt-2 text-[#073B4C]">Semantic Search</p>
+                    <p class="text-gray-600 mt-2">Complex, context-aware queries are resolved almost instantly from L2 memory.</p>
+                </div>
+                 <div class="p-8 rounded-xl shadow-lg text-center kpi-card">
+                    <p class="text-6xl font-black text-[#FF6B6B]">40%</p>
+                    <p class="text-xl font-bold mt-2 text-[#073B4C]">Productivity Gain</p>
+                    <p class="text-gray-600 mt-2">Reclaim developer time spent on code discovery and manual analysis.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="capabilities" class="mb-12 md:mb-20">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div>
+                    <h2 class="text-3xl font-bold text-[#073B4C] mb-4">Cached Augmented Generation</h2>
+                    <p class="text-gray-600 mb-6">
+                        Sentinel AI's CAG architecture drastically reduces computational costs and boosts performance. By serving the majority of queries from its intelligent caches, it minimizes expensive LLM calls and creates a compounding knowledge asset for your team.
+                    </p>
+                     <div class="chart-container">
+                        <canvas id="cagChart"></canvas>
+                    </div>
+                </div>
+                 <div>
+                    <h2 class="text-3xl font-bold text-[#073B4C] mb-4">Core Capabilities</h2>
+                    <ul class="space-y-4">
+                        <li class="flex items-start p-4 bg-white rounded-lg shadow">
+                            <span class="text-2xl mr-4">💬</span>
+                            <div>
+                                <h4 class="font-bold text-[#073B4C]">Conversational Search</h4>
+                                <p class="text-gray-600">Query code and documents using natural language.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start p-4 bg-white rounded-lg shadow">
+                             <span class="text-2xl mr-4">⏳</span>
+                            <div>
+                                <h4 class="font-bold text-[#073B4C]">Time-Aware Intelligence</h4>
+                                <p class="text-gray-600">Understand the 'why' behind code changes by analyzing Git history.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start p-4 bg-white rounded-lg shadow">
+                             <span class="text-2xl mr-4">🤖</span>
+                            <div>
+                                <h4 class="font-bold text-[#073B4C]">Multi-Agent Reasoning</h4>
+                                <p class="text-gray-600">Specialized agents analyze code topology, evolution, and context.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start p-4 bg-white rounded-lg shadow">
+                             <span class="text-2xl mr-4">🔬</span>
+                            <div>
+                                <h4 class="font-bold text-[#073B4C]">Advanced AST Analysis</h4>
+                                <p class="text-gray-600">Parse multiple languages to map dependencies and patterns.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="language-performance" class="mb-12 md:mb-20">
+            <h2 class="text-3xl font-bold text-center mb-10 text-[#073B4C]">Multi-Language Parsing Performance</h2>
+            <p class="text-center max-w-2xl mx-auto text-gray-600 mb-6">The Rust-based AST parser provides blazing-fast analysis across a variety of popular programming languages, forming the foundation for deep code intelligence.</p>
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <div class="chart-container" style="max-width: 800px;">
+                    <canvas id="languageChart"></canvas>
+                </div>
+            </div>
+        </section>
+        
+        <section id="roadmap" class="mb-12 md:mb-20">
+            <h2 class="text-3xl font-bold text-center mb-10 text-[#073B4C]">The Future Roadmap</h2>
+            <div class="relative">
+                <div class="border-l-4 border-[#118AB2] absolute h-full top-0 left-1/2 -ml-px"></div>
+                <div class="space-y-12">
+                    <div class="relative">
+                        <div class="md:flex items-center md:justify-end">
+                            <div class="md:w-1/2 md:pr-8">
+                                <div class="p-6 bg-white rounded-xl shadow-lg">
+                                    <p class="font-bold text-lg text-[#073B4C]">Predictive Technical Debt</p>
+                                    <p class="text-gray-600">Proactively identify and model technical debt accumulation patterns before they impact your system.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="absolute top-1/2 -mt-3 w-6 h-6 rounded-full bg-[#118AB2] shadow left-1/2 -ml-3"></div>
+                        <div class="md:flex items-center">
+                             <div class="md:w-1/2"></div>
+                             <div class="md:w-1/2 md:pl-8 text-left">
+                                <p class="text-[#073B4C] font-bold">Q3 2025</p>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="relative">
+                        <div class="md:flex items-center">
+                             <div class="md:w-1/2 md:text-right md:pr-8">
+                                 <p class="text-[#073B4C] font-bold">Q4 2025</p>
+                            </div>
+                             <div class="md:w-1/2">
+                                <div class="p-6 bg-white rounded-xl shadow-lg">
+                                    <p class="font-bold text-lg text-[#073B4C]">Autonomous Code Documentation</p>
+                                    <p class="text-gray-600">Generate accurate, context-aware documentation automatically from your codebase.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="absolute top-1/2 -mt-3 w-6 h-6 rounded-full bg-[#118AB2] shadow left-1/2 -ml-3"></div>
+                    </div>
+                     <div class="relative">
+                        <div class="md:flex items-center md:justify-end">
+                            <div class="md:w-1/2 md:pr-8">
+                                <div class="p-6 bg-white rounded-xl shadow-lg">
+                                    <p class="font-bold text-lg text-[#073B4C]">Multi-Repository Intelligence</p>
+                                    <p class="text-gray-600">Synthesize knowledge and understand dependencies across your entire ecosystem of microservices.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="absolute top-1/2 -mt-3 w-6 h-6 rounded-full bg-[#118AB2] shadow left-1/2 -ml-3"></div>
+                        <div class="md:flex items-center">
+                             <div class="md:w-1/2"></div>
+                             <div class="md:w-1/2 md:pl-8 text-left">
+                                <p class="text-[#073B4C] font-bold">2026+</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="text-center border-t pt-8">
+            <p class="font-bold text-lg text-[#073B4C]">Ready to have a conversation with your code?</p>
+            <a href="https://github.com/Senpai-Sama7/Sentinel-AI" class="mt-4 inline-block bg-[#073B4C] text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-[#118AB2] transition-colors">
+                Explore Sentinel AI on GitHub
+            </a>
+            <p class="text-sm text-gray-500 mt-6">MIT Licensed. Built with ❤️ and the conviction that your code should understand you, too.</p>
+        </footer>
+
+    </main>
+
+    <script>
+        function wrapText(text, maxLen) {
+            if (typeof text !== 'string' || text.length <= maxLen) {
+                return text;
+            }
+            const words = text.split(' ');
+            const lines = [];
+            let currentLine = '';
+            for (const word of words) {
+                if ((currentLine + word).length <= maxLen) {
+                    currentLine += `${word} `;
+                } else {
+                    lines.push(currentLine.trim());
+                    currentLine = `${word} `;
+                }
+            }
+            lines.push(currentLine.trim());
+            return lines;
+        }
+
+        const tooltipTitleCallback = (tooltipItems) => {
+            const item = tooltipItems[0];
+            let label = item.chart.data.labels[item.dataIndex];
+            if (Array.isArray(label)) {
+                return label.join(' ');
+            }
+            return label;
+        };
+        
+        const sharedChartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        font: {
+                            family: "'Inter', sans-serif",
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTitleCallback
+                    },
+                    bodyFont: {
+                        family: "'Inter', sans-serif",
+                    },
+                    titleFont: {
+                        family: "'Inter', sans-serif",
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    ticks: {
+                        font: {
+                            family: "'Inter', sans-serif",
+                        }
+                    },
+                    grid: {
+                        color: '#e0e0e0'
+                    }
+                },
+                x: {
+                    ticks: {
+                        font: {
+                            family: "'Inter', sans-serif",
+                        }
+                    },
+                     grid: {
+                        display: false
+                    }
+                }
+            }
+        };
+
+        const cagData = {
+            labels: ['Answered from Cache (L0/L1)', 'New Semantic Search (L2)', 'Full Git History Analysis (L3)'],
+            datasets: [{
+                label: 'Query Resolution Source',
+                data: [75, 20, 5],
+                backgroundColor: [
+                    '#06D6A0',
+                    '#118AB2',
+                    '#FFD166'
+                ],
+                borderColor: '#f0f4f8',
+                borderWidth: 4,
+                hoverOffset: 4
+            }]
+        };
+
+        const cagCtx = document.getElementById('cagChart').getContext('2d');
+        new Chart(cagCtx, {
+            type: 'doughnut',
+            data: cagData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                family: "'Inter', sans-serif",
+                                size: 12
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: tooltipTitleCallback
+                        }
+                    }
+                }
+            }
+        });
+        
+        const languageData = {
+            labels: ['Python', 'JavaScript/TypeScript', 'Go', 'Rust'],
+            datasets: [{
+                label: 'Files Parsed per Second',
+                data: [48, 45, 60, 35],
+                backgroundColor: [
+                    'rgba(6, 214, 160, 0.7)',
+                    'rgba(255, 209, 102, 0.7)',
+                    'rgba(17, 138, 178, 0.7)',
+                    'rgba(255, 107, 107, 0.7)'
+                ],
+                borderColor: [
+                    '#06D6A0',
+                    '#FFD166',
+                    '#118AB2',
+                    '#FF6B6B'
+                ],
+                borderWidth: 2,
+                borderRadius: 5
+            }]
+        };
+
+        const languageCtx = document.getElementById('languageChart').getContext('2d');
+        new Chart(languageCtx, {
+            type: 'bar',
+            data: languageData,
+            options: { ...sharedChartOptions,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Files / Second',
+                            font: {
+                                family: "'Inter', sans-serif",
+                                weight: 'bold'
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: tooltipTitleCallback
+                        }
+                    }
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>
