@@ -50,6 +50,7 @@ A production-ready **semantic memory** micro-service that transforms unstructure
   Enforce hard constraints and log lessons after each run. See
   [docs/rules.md](docs/rules.md) and [docs/reflection.md](docs/reflection.md).
 
+
 ---
 
 ## 📖 Table of Contents
