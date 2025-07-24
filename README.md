@@ -7,6 +7,9 @@
 A production-ready **semantic memory** micro-service that transforms unstructured content into actionable, AI-driven insights. Designed for high-throughput ingestion, precise semantic indexing, and Retrieval-Augmented Generation (RAG), it delivers sub-millisecond search and contextual responses.
 
 ---
+...
+
+---
 
 ## 🚀 Core Capabilities
 
