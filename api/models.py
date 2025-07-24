@@ -64,4 +64,20 @@ class ErrorResponse(BaseModel):
     A generic error response model for consistent error reporting.
     """
     message: str
+
+
+class TemporalLogResponse(BaseModel):
+    sequence: List[tuple[str, float]]
+
+
+class ClusterResponse(BaseModel):
+    labels: List[int]
+
+
+class AgentRunResponse(BaseModel):
+    best_position: List[float]
+
+
+class FuseResponse(BaseModel):
+    vector: List[float]
     
