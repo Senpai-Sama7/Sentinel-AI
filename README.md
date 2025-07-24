@@ -219,6 +219,10 @@ Review [CHANGELOG.md](CHANGELOG.md) for release history. Upcoming: multi-tenant 
 
 ---
 
+## Security Notice
+
+Use this project **only** on systems you own or have explicit permission to test. Unauthorized usage is prohibited.
+
 ## License
 
 [MIT License](LICENSE)

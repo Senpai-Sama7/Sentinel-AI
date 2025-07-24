@@ -1,4 +1,5 @@
 """Temporal Sequence Modeling utilities."""
+
 from __future__ import annotations
 
 import time
@@ -19,24 +20,36 @@ class TemporalSequenceLogger:
         self._logs: Dict[str, List[tuple[str, float]]] = {}
 
     def log_action(self, user_id: str, action: str) -> None:
+        """Record a user action with the current timestamp."""
         self._logs.setdefault(user_id, []).append((action, time.time()))
 
     def get_sequence(self, user_id: str) -> List[tuple[str, float]]:
+        """Retrieve the action history for a given user."""
         return self._logs.get(user_id, [])
 
 
-class LSTMPredictor(nn.Module):
-    """Simple LSTM model for sequence prediction demo."""
+if nn is not None:
 
-    def __init__(self, vocab_size: int, hidden_size: int = 16) -> None:
-        if nn is None:
+    class LSTMPredictor(nn.Module):
+        """Simple LSTM model for sequence prediction demo."""
+
+        def __init__(self, vocab_size: int, hidden_size: int = 16) -> None:
+            super().__init__()
+            self.embed = nn.Embedding(vocab_size, hidden_size)
+            self.lstm = nn.LSTM(hidden_size, hidden_size, batch_first=True)
+            self.fc = nn.Linear(hidden_size, vocab_size)
+
+        def forward(
+            self, x: torch.Tensor
+        ) -> torch.Tensor:  # pragma: no cover - optional dependency
+            emb = self.embed(x)
+            out, _ = self.lstm(emb)
+            return self.fc(out[:, -1, :])
+
+else:  # pragma: no cover - optional dependency
+
+    class LSTMPredictor:
+        """Stub when PyTorch is unavailable."""
+
+        def __init__(self, *_: object, **__: object) -> None:
             raise RuntimeError("PyTorch is required for LSTMPredictor")
-        super().__init__()
-        self.embed = nn.Embedding(vocab_size, hidden_size)
-        self.lstm = nn.LSTM(hidden_size, hidden_size, batch_first=True)
-        self.fc = nn.Linear(hidden_size, vocab_size)
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        emb = self.embed(x)
-        out, _ = self.lstm(emb)
-        return self.fc(out[:, -1, :])
