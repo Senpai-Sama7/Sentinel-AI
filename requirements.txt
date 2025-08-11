@@ -1,7 +1,7 @@
 # To generate: poetry export -f requirements.txt --output requirements.txt --without-hashes
 fastapi==0.110.0
 uvicorn[standard]==0.35.0
-redis[hiredis]==6.2.0
+redis[hiredis]==6.4.0
 weaviate-client==4.5.4
 chromadb==0.4.24  # Vector store
 gitpython==3.1.43
