@@ -22,7 +22,7 @@ jobs:
       APP_CORS_ORIGINS: ${{ secrets.APP_CORS_ORIGINS }}
       LOG_LEVEL: ${{ secrets.LOG_LEVEL }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -57,7 +57,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-and-test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Helm
         uses: azure/setup-helm@v4
         with:
@@ -73,7 +73,7 @@ jobs:
     env:
       PROMETHEUS_MULTIPROC_DIR: /tmp/metrics
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
