@@ -17,7 +17,7 @@ jobs:
   changelog-enforcement:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Extract version
         id: get_version
         run: |
@@ -32,7 +32,7 @@ jobs:
     needs: changelog-enforcement
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Generate Changelog
         run: |
           npm install -g conventional-changelog-cli
@@ -42,7 +42,7 @@ jobs:
     needs: generate-changelog
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Login to DockerHub
