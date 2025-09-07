@@ -15,9 +15,13 @@
 <img src="https://img.shields.io/github/stars/Senpai-Sama7/Sentinel-AI?style=social" alt="GitHub Stars"/>
 </p>
 
-The Neural Architecture of Code Intelligence
+## The Neural Architecture of Code Intelligence
 
-Transform your codebase from static documentation into a living, learning, and reasoning partner—ready to answer, adapt, and anticipate.
+---
+https://senpai-sama7.github.io/Sentinel-AI/
+---
+
+## Transform your codebase from static documentation into a living, learning, and reasoning partner—ready to answer, adapt, and anticipate.
 
 🚀 Introduction
 
