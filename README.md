@@ -17,9 +17,9 @@
 
 ## The Neural Architecture of Code Intelligence
 
----
+```
 https://senpai-sama7.github.io/Sentinel-AI/
----
+```
 
 ## Transform your codebase from static documentation into a living, learning, and reasoning partner—ready to answer, adapt, and anticipate.
 
